@@ -38,7 +38,7 @@ jobs:
         with:
           path: |
             .nox
-          key: nox-${{ runner.os }}-${{ hashFiles('pyproject.yaml') }}
+          key: nox-${{ runner.os }}
       - name: Cache pre-commit
         uses: actions/cache@v3
         with:
