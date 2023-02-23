@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-from lndb.dev import setup_local_test_postgres
 from nox import Session
 
+from ._db import setup_local_test_postgres
 from ._env import get_package_name, get_schema_handle
 
 
