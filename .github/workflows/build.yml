@@ -33,15 +33,18 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Cache
+      - name: Cache nox
         uses: actions/cache@v3
-        env:
-          cache-name: cache-all
         with:
           path: |
             .nox
+          key: nox-${{ runner.os }}-${{ hashFiles('pyproject.yaml') }}
+      - name: Cache pre-commit
+        uses: actions/cache@v3
+        with:
+          path: |
             ~/.cache/pre-commit
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pyproject.yaml') }}
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Install pip and nox
         run: |
           python -m pip install --upgrade pip
