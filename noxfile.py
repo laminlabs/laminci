@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import nox
 
 nox.options.reuse_existing_virtualenvs = True
@@ -22,7 +20,3 @@ def build(session):
         "--cov-append",
         "--cov-report=term-missing",
     )
-    session.run("coverage", "xml")
-    prefix = "." if Path("./lndocs").exists() else ".."
-    session.install(f"{prefix}/lndocs")
-    session.run("lndocs")
