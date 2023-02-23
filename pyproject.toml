@@ -10,6 +10,7 @@ dynamic = ["version", "description"]
 dependencies = [
     "nbproject",
     "lamindb",
+    "nox",
 ]
 
 [project.urls]
@@ -18,7 +19,6 @@ Home = "https://github.com/laminlabs/laminci"
 [project.optional-dependencies]
 dev = [
     "pre-commit",
-    "nox",
 ]
 test = [
     "pytest>=6.0",
