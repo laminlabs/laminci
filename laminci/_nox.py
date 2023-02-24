@@ -45,11 +45,13 @@ def run_pre_commit(session: Session):
 
 def run_pytest(session: Session, coverage: bool = True):
     package_name = get_package_name()
-    coverage_args = f"--cov={package_name} --cov-append --cov-report=term-missing"
+    coverage_args = (
+        f"--cov={package_name} --cov-append --cov-report=term-missing".split()
+    )
     session.run(
         "pytest",
         "-s",
-        coverage_args,
+        *coverage_args,
     )
     if coverage:
         session.run("coverage", "xml")
