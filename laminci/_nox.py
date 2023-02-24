@@ -43,16 +43,16 @@ def run_pre_commit(session: Session):
     session.run("pre-commit", "run", "--all-files")
 
 
-def run_pytest(session: Session):
+def run_pytest(session: Session, coverage: bool = True):
     package_name = get_package_name()
+    coverage_args = f"--cov={package_name} --cov-append --cov-report=term-missing"
     session.run(
         "pytest",
         "-s",
-        f"--cov={package_name}",
-        "--cov-append",
-        "--cov-report=term-missing",
+        coverage_args,
     )
-    session.run("coverage", "xml")
+    if coverage:
+        session.run("coverage", "xml")
 
 
 def build_docs(session: Session):
