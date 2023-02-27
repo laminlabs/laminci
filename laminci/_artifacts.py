@@ -1,5 +1,6 @@
 import os
-import shutil
+from pathlib import Path
+from zipfile import ZipFile
 
 from ._env import get_package_name
 
@@ -11,7 +12,15 @@ def upload_docs_dir():
         return
     package_name = get_package_name()
     filestem = f"{package_name}_docs"
-    filename = shutil.make_archive(filestem, "zip", "./docs")
+    filename = f"{filestem}.zip"
+
+    with ZipFile(filename, "w") as zf:
+        for f in Path("./docs").glob("**/*"):
+            if ".ipynb_checkpoints" in str(f):
+                continue
+            if f.suffix in {".md", ".ipynb"}:
+                zf.write(f)
+
     lndb.load("testuser1/lamin-site-assets", migrate=True)
 
     import lamindb as ln
