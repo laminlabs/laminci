@@ -3,7 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
-🐛 Implement overwrite | [8](https://github.com/laminlabs/laminci/pull/8) | [falexwolf](https://github.com/falexwolf) | 2023-02-28 |
+🐛 Implement overwrite | [8](https://github.com/laminlabs/laminci/pull/8) | [falexwolf](https://github.com/falexwolf) | 2023-02-28 | 0.2.4
 :zap: Only include docs files | [7](https://github.com/laminlabs/laminci/pull/7) | [falexwolf](https://github.com/falexwolf) | 2023-02-27 | 0.2.3
 🐛 Fix coverage call | [6](https://github.com/laminlabs/laminci/pull/6) | [falexwolf](https://github.com/falexwolf) | 2023-02-24 | 0.2.2
 🚸 Make coverage calculation optional | [5](https://github.com/laminlabs/laminci/pull/5) | [falexwolf](https://github.com/falexwolf) | 2023-02-24 | 0.2.1
