@@ -27,11 +27,13 @@ def upload_docs_dir():
     import lamindb.schema as lns
 
     with ln.Session() as ss:
-        dobject = ss.select(ln.DObject, name=filestem).one_or_none()
         pipeline = ln.add(lns.Pipeline, name=f"CI {package_name}")
         run = lns.Run(pipeline=pipeline)
-        if dobject is None:
-            dobject = ln.DObject(filename, source=run)
-        else:
-            dobject.source = run
+
+        dobject = ln.DObject(filename, source=run)
+        existing_dobject_to_overwrite = ss.select(
+            ln.DObject, name=filestem
+        ).one_or_none()
+        if existing_dobject_to_overwrite is not None:
+            dobject.id = existing_dobject_to_overwrite.id
         ss.add(dobject)
