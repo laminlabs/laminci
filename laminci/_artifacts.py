@@ -27,11 +27,14 @@ def upload_docs_dir():
     import lamindb.schema as lns
 
     with ln.Session() as ss:
-        dobject = ss.select(ln.DObject, name=filestem).one_or_none()
         pipeline = ln.add(lns.Pipeline, name=f"CI {package_name}")
         run = lns.Run(pipeline=pipeline)
-        if dobject is None:
-            dobject = ln.DObject(filename, source=run)
-        else:
+
+        dobject = ss.select(ln.DObject, name=filestem).one_or_none()
+        if dobject is not None:
+            dobject._cloud_filepath = None
+            dobject._local_filepath = Path(filename)
             dobject.source = run
+        else:
+            dobject = ln.DObject(filename, source=run)
         ss.add(dobject)
