@@ -15,11 +15,12 @@ def upload_docs_dir():
     filename = f"{filestem}.zip"
 
     with ZipFile(filename, "w") as zf:
+        zf.write("README.md")
         for f in Path("./docs").glob("**/*"):
             if ".ipynb_checkpoints" in str(f):
                 continue
             if f.suffix in {".md", ".ipynb"}:
-                zf.write(f)
+                zf.write(f, f.relative_to("./docs"))  # add at root level
 
     lndb.load("testuser1/lamin-site-assets", migrate=True)
 
