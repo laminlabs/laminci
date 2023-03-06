@@ -20,7 +20,7 @@ def upload_docs_dir():
             if ".ipynb_checkpoints" in str(f):
                 continue
             if f.suffix in {".md", ".ipynb"}:
-                zf.write(f, f.name)  # add at root level
+                zf.write(f, f.relative_to("./docs"))  # add at root level
 
     lndb.load("testuser1/lamin-site-assets", migrate=True)
 
