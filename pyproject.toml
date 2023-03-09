@@ -8,8 +8,8 @@ authors = [{name = "Lamin Labs", email = "laminlabs@gmail.com"}]
 readme = "README.md"
 dynamic = ["version", "description"]
 dependencies = [
-    "nbproject",
-    "lamindb",
+    # this CANNOT depend on lamindb as long as we use it
+    # as an upstream dependency within lndb!
     "nox",
 ]
 
