@@ -6,7 +6,8 @@ from ._env import get_package_name
 
 
 def upload_docs_dir():
-    import lndb
+    import lamindb as ln
+    import lamindb.schema as lns
 
     if os.environ["GITHUB_EVENT_NAME"] != "push":
         return
@@ -22,10 +23,7 @@ def upload_docs_dir():
             if f.suffix in {".md", ".ipynb"}:
                 zf.write(f, f.relative_to("./docs"))  # add at root level
 
-    lndb.load("testuser1/lamin-site-assets", migrate=True)
-
-    import lamindb as ln
-    import lamindb.schema as lns
+    ln.setup.load("testuser1/lamin-site-assets", migrate=True)
 
     with ln.Session() as ss:
         pipeline = ln.add(lns.Pipeline, name=f"CI {package_name}")
