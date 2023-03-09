@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+➖ Remove dependency on lamindb in laminci | [10](https://github.com/laminlabs/laminci/pull/10) | [falexwolf](https://github.com/falexwolf) | 2023-03-09 |
 🍱 Track readme in docs upload | [9](https://github.com/laminlabs/laminci/pull/9) | [falexwolf](https://github.com/falexwolf) | 2023-03-06 | 0.2.5
 🐛 Implement overwrite | [8](https://github.com/laminlabs/laminci/pull/8) | [falexwolf](https://github.com/falexwolf) | 2023-02-28 | 0.2.4
 :zap: Only include docs files | [7](https://github.com/laminlabs/laminci/pull/7) | [falexwolf](https://github.com/falexwolf) | 2023-02-27 | 0.2.3
