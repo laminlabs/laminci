@@ -20,7 +20,7 @@ def upload_docs_dir():
         for f in Path("./docs").glob("**/*"):
             if ".ipynb_checkpoints" in str(f):
                 continue
-            if f.suffix in {".md", ".ipynb"}:
+            if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg"}:
                 zf.write(f, f.relative_to("./docs"))  # add at root level
 
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
