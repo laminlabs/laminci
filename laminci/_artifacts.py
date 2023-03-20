@@ -5,7 +5,7 @@ from zipfile import ZipFile
 from ._env import get_package_name
 
 
-def upload_docs_dir():
+def upload_docs_artifacts():
     import lamindb as ln
     import lamindb.schema as lns
 
