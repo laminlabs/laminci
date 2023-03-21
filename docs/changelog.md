@@ -3,7 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
-🚚 Rename `upload_docs_dir` to `upload_docs_artifacts` |  | 2023-03-21 | 0.3.3
+🚚 Rename `upload_docs_dir` to `upload_docs_artifact` |  | 2023-03-21 | 0.3.4
 🍱 Track images in docs | [11](https://github.com/laminlabs/laminci/pull/11) | [falexwolf](https://github.com/falexwolf) | 2023-03-12 | 0.3.2
 ➖ Remove dependency on lamindb in laminci | [10](https://github.com/laminlabs/laminci/pull/10) | [falexwolf](https://github.com/falexwolf) | 2023-03-09 | 0.3.0 / 0.3.1
 🍱 Track readme in docs upload | [9](https://github.com/laminlabs/laminci/pull/9) | [falexwolf](https://github.com/falexwolf) | 2023-03-06 | 0.2.5
