@@ -7,7 +7,6 @@ from ._env import get_package_name
 
 def upload_docs_artifact():
     import lamindb as ln
-    import lamindb.schema as lns
 
     if os.environ["GITHUB_EVENT_NAME"] != "push":
         return
@@ -26,14 +25,14 @@ def upload_docs_artifact():
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
 
     with ln.Session() as ss:
-        pipeline = ln.add(lns.Pipeline, name=f"CI {package_name}")
-        run = lns.Run(pipeline=pipeline)
+        transform = ln.add(ln.Transform, name=f"CI {package_name}")
+        run = ln.Run(transform=transform)
 
-        dobject = ss.select(ln.DObject, name=filestem).one_or_none()
+        dobject = ss.select(ln.File, name=filestem).one_or_none()
         if dobject is not None:
             dobject._cloud_filepath = None
             dobject._local_filepath = Path(filename)
             dobject.source = run
         else:
-            dobject = ln.DObject(filename, source=run)
+            dobject = ln.File(filename, source=run)
         ss.add(dobject)
