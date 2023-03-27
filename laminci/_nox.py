@@ -22,7 +22,7 @@ def setup_test_instances_from_main_branch(session: Session, schema: str = None):
     pgurl = setup_local_test_postgres()
     # switch to the main branch
     if "GITHUB_BASE_REF" in os.environ and os.environ["GITHUB_BASE_REF"] != "":
-        session.run("git", "checkout", os.environ["GITHUB_BASE_REF"], external=True)
+        session.run("git", "switch", os.environ["GITHUB_BASE_REF"], external=True)
     session.install(".[test]")  # install current package from main branch
     # init a postgres instance
     init_instance = f"lndb init --storage pgtest --db {pgurl}"
@@ -34,7 +34,7 @@ def setup_test_instances_from_main_branch(session: Session, schema: str = None):
     session.run(*init_instance.split(" "), external=True)
     # go back to the PR branch
     if "GITHUB_HEAD_REF" in os.environ and os.environ["GITHUB_HEAD_REF"] != "":
-        session.run("git", "checkout", os.environ["GITHUB_HEAD_REF"], external=True)
+        session.run("git", "switch", os.environ["GITHUB_HEAD_REF"], external=True)
 
 
 def run_pre_commit(session: Session):
