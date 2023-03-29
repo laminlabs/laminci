@@ -8,12 +8,12 @@ from ._env import get_package_name, get_schema_handle
 
 
 def login_testuser1(session: Session):
-    login_user_1 = "lndb login testuser1@lamin.ai --password cEvcwMJFX4OwbsYVaMt2Os6GxxGgDUlBGILs2RyS"  # noqa
+    login_user_1 = "lamin login testuser1@lamin.ai --password cEvcwMJFX4OwbsYVaMt2Os6GxxGgDUlBGILs2RyS"  # noqa
     session.run(*(login_user_1.split(" ")), external=True)
 
 
 def login_testuser2(session: Session):
-    login_user_1 = "lndb login testuser2@lamin.ai --password goeoNJKE61ygbz1vhaCVynGERaRrlviPBVQsjkhz"  # noqa
+    login_user_1 = "lamin login testuser2@lamin.ai --password goeoNJKE61ygbz1vhaCVynGERaRrlviPBVQsjkhz"  # noqa
     session.run(*(login_user_1.split(" ")), external=True)
 
 
@@ -25,7 +25,7 @@ def setup_test_instances_from_main_branch(session: Session, schema: str = None):
         session.run("git", "switch", os.environ["GITHUB_BASE_REF"], external=True)
     session.install(".[test]")  # install current package from main branch
     # init a postgres instance
-    init_instance = f"lndb init --storage pgtest --db {pgurl}"
+    init_instance = f"lamin init --storage pgtest --db {pgurl}"
     schema_handle = get_schema_handle()
     if schema is None and schema_handle not in {None, "core"}:
         init_instance += f" --schema {schema_handle}"
