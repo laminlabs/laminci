@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Mapping, Optional
 
 from nox import Session
 
@@ -7,14 +8,14 @@ from ._db import setup_local_test_postgres
 from ._env import get_package_name, get_schema_handle
 
 
-def login_testuser1(session: Session):
+def login_testuser1(session: Session, env: Optional[Mapping] = None):
     login_user_1 = "lamin login testuser1@lamin.ai --password cEvcwMJFX4OwbsYVaMt2Os6GxxGgDUlBGILs2RyS"  # noqa
-    session.run(*(login_user_1.split(" ")), external=True)
+    session.run(*(login_user_1.split(" ")), external=True, env=env)
 
 
-def login_testuser2(session: Session):
+def login_testuser2(session: Session, env: Optional[Mapping] = None):
     login_user_1 = "lamin login testuser2@lamin.ai --password goeoNJKE61ygbz1vhaCVynGERaRrlviPBVQsjkhz"  # noqa
-    session.run(*(login_user_1.split(" ")), external=True)
+    session.run(*(login_user_1.split(" ")), external=True, env=env)
 
 
 def setup_test_instances_from_main_branch(session: Session, schema: str = None):
@@ -43,7 +44,7 @@ def run_pre_commit(session: Session):
     session.run("pre-commit", "run", "--all-files")
 
 
-def run_pytest(session: Session, coverage: bool = True):
+def run_pytest(session: Session, coverage: bool = True, env: Optional[Mapping] = None):
     package_name = get_package_name()
     coverage_args = (
         f"--cov={package_name} --cov-append --cov-report=term-missing".split()
@@ -52,6 +53,7 @@ def run_pytest(session: Session, coverage: bool = True):
         "pytest",
         "-s",
         *coverage_args,
+        env=env,
     )
     if coverage:
         session.run("coverage", "xml")
