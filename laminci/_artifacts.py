@@ -24,15 +24,12 @@ def upload_docs_artifact():
 
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
 
-    with ln.Session() as ss:
-        transform = ln.add(ln.Transform, name=f"CI {package_name}")
-        run = ln.Run(transform=transform)
+    transform = ln.add(ln.Transform, name=f"CI {package_name}")
+    ln.track(transform=transform)
 
-        dobject = ss.select(ln.File, name=filestem).one_or_none()
-        if dobject is not None:
-            dobject._cloud_filepath = None
-            dobject._local_filepath = Path(filename)
-            dobject.source = run
-        else:
-            dobject = ln.File(filename, source=run)
-        ss.add(dobject)
+    file = ln.select(ln.File, key=f"docs/{filename}").one_or_none()
+    if file is not None:
+        file.replace(filename)
+    else:
+        file = ln.File(filename, key=f"docs/{filename}")
+    ln.add(file)
