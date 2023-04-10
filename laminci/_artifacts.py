@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from zipfile import ZipFile
 
-import lndb
 from lamin_logger import logger
 
 from ._env import get_package_name
@@ -19,7 +18,12 @@ def zip_docs_dir(zip_filename: str) -> None:
 
 
 def upload_docs_artifact() -> None:
+    # this is super ugly but necessary right now
+    # we might need to close the current instance as it might be corrupted
+    import lndb
+
     lndb.close()
+
     import lamindb as ln
 
     if "GITHUB_EVENT_NAME" in os.environ and os.environ["GITHUB_EVENT_NAME"] != "push":
