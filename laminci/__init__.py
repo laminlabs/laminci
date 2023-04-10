@@ -6,7 +6,7 @@ Import the package::
 
 """
 
-__version__ = "0.5.2"  # denote a pre-release for 0.1.0 with 0.1a1
+__version__ = "0.5.3"  # denote a pre-release for 0.1.0 with 0.1a1
 
 from . import db, nox
 from ._artifacts import upload_docs_artifact
