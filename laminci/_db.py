@@ -36,18 +36,3 @@ def setup_local_test_postgres(name: str = "pgtest"):
     time.sleep(2)
     return f"postgresql://postgres:pwd@0.0.0.0:5432/{name}"
 
-
-def setup_local_test_postgres_supabase():
-    process = run(
-        f"""supabase start | grep 'anon key'|cut -f2 -d ":" | sed -e 's/^[[:space:]]*//'""",  # noqa
-        shell=True,
-        stdout=PIPE,
-    )
-    anon_key = process.stdout.decode("UTF-8").replace("\n", "")
-    open(".supabase_local_anon_key", "w").write(anon_key)
-    if process.returncode == 0:
-        logger.info("Created Supabase test instance.")
-    else:
-        raise RuntimeError("Failed to set up Supabase test instance.")
-    time.sleep(2)
-    return "postgresql://postgres:postgres@localhost:54322/postgres"
