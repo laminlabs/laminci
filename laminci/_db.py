@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 from subprocess import PIPE, run
+from typing import Optional
 
 from lamin_logger import logger
 
@@ -19,10 +20,14 @@ def setup_local_test_sqlite_file(src_settings, return_dir: bool = False):
     return tgt_db
 
 
-def setup_local_test_postgres(name: str = "pgtest"):
+def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = None):
+    if version is not None:
+        version = ":{version}"
+    else:
+        version = ""
     process = run(
         f"docker run --name {name} -e POSTGRES_PASSWORD=pwd"
-        f" -e POSTGRES_DB={name} -d -p 5432:5432 postgres",  # noqa
+        f" -e POSTGRES_DB={name} -d -p 5432:5432 postgres{version}",  # noqa
         shell=True,
     )
     if process.returncode == 0:
