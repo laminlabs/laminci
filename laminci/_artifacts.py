@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from subprocess import run
 from zipfile import ZipFile
 
 from lamin_logger import logger
@@ -17,21 +18,17 @@ def zip_docs_dir(zip_filename: str) -> None:
                 zf.write(f, f.relative_to("./docs"))  # add at root level
 
 
-def upload_docs_artifact() -> None:
-    # this is super ugly but necessary right now
-    # we might need to close the current instance as it might be corrupted
-    import lndb
+def upload_docs_artifact_aws(package_name: str, zip_filename: str) -> None:
+    try:
+        import awscli  # noqa
+    except ImportError:
+        run("pip install awscli")
 
-    lndb.close()
+    run(f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
 
+
+def upload_docs_artifact_lamindb(package_name: str, zip_filename: str) -> None:
     import lamindb as ln
-
-    if "GITHUB_EVENT_NAME" in os.environ and os.environ["GITHUB_EVENT_NAME"] != "push":
-        logger.info("Only upload docs artifact for push event.")
-        return None
-    package_name = get_package_name()
-    zip_filename = f"{package_name}_docs.zip"
-    zip_docs_dir(zip_filename)
 
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
 
@@ -44,3 +41,26 @@ def upload_docs_artifact() -> None:
     else:
         file = ln.File(zip_filename, key=f"docs/{zip_filename}")
     ln.add(file)
+
+
+def upload_docs_artifact() -> None:
+    if "GITHUB_EVENT_NAME" in os.environ and os.environ["GITHUB_EVENT_NAME"] != "push":
+        logger.info("Only upload docs artifact for push event.")
+        return None
+    package_name = get_package_name()
+    zip_filename = f"{package_name}_docs.zip"
+    zip_docs_dir(zip_filename)
+
+    try:
+        # this is super ugly but necessary right now
+        # we might need to close the current instance as it might be corrupted
+        import lndb
+
+        lndb.close()
+
+        import lamindb as ln  # noqa
+
+        upload_docs_artifact_lamindb(package_name, zip_filename)
+
+    except ImportError:
+        upload_docs_artifact_aws(package_name, zip_filename)
