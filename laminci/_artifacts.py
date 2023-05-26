@@ -1,4 +1,5 @@
 import os
+import warnings
 from pathlib import Path
 from subprocess import run
 from zipfile import ZipFile
@@ -18,11 +19,21 @@ def zip_docs_dir(zip_filename: str) -> None:
                 zf.write(f, f.relative_to("./docs"))  # add at root level
 
 
-def upload_docs_artifact_aws(package_name: str, zip_filename: str) -> None:
+def zip_docs():
+    package_name = get_package_name()
+    zip_filename = f"{package_name}_docs.zip"
+    zip_docs_dir(zip_filename)
+    return package_name, zip_filename
+
+
+def upload_docs_artifact_aws() -> None:
+    package_name, zip_filename = zip_docs()
     run(f"aws s3 sync {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
 
 
-def upload_docs_artifact_lamindb(package_name: str, zip_filename: str) -> None:
+def upload_docs_artifact_lamindb() -> None:
+    package_name, zip_filename = zip_docs()
+
     import lamindb as ln
 
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
@@ -38,24 +49,25 @@ def upload_docs_artifact_lamindb(package_name: str, zip_filename: str) -> None:
     ln.add(file)
 
 
-def upload_docs_artifact() -> None:
+def upload_docs_artifact(aws: bool = False) -> None:
     if "GITHUB_EVENT_NAME" in os.environ and os.environ["GITHUB_EVENT_NAME"] != "push":
         logger.info("Only upload docs artifact for push event.")
         return None
-    package_name = get_package_name()
-    zip_filename = f"{package_name}_docs.zip"
-    zip_docs_dir(zip_filename)
 
-    try:
-        # this is super ugly but necessary right now
-        # we might need to close the current instance as it might be corrupted
-        import lndb
+    if aws:
+        upload_docs_artifact_aws()
+    else:
+        try:
+            # this is super ugly but necessary right now
+            # we might need to close the current instance as it might be corrupted
+            import lndb
 
-        lndb.close()
+            lndb.close()
 
-        import lamindb as ln  # noqa
+            import lamindb as ln  # noqa
 
-        upload_docs_artifact_lamindb(package_name, zip_filename)
+            upload_docs_artifact_lamindb()
 
-    except ImportError:
-        upload_docs_artifact_aws(package_name, zip_filename)
+        except ImportError:
+            warnings.warn("Fall back to AWS")
+            upload_docs_artifact_aws()
