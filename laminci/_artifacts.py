@@ -28,7 +28,10 @@ def zip_docs():
 
 def upload_docs_artifact_aws() -> None:
     package_name, zip_filename = zip_docs()
-    run(f"aws s3 sync {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
+    run(
+        f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
+        shell=True,
+    )
 
 
 def upload_docs_artifact_lamindb() -> None:
