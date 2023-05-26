@@ -1,6 +1,6 @@
 import time
 from pathlib import Path
-from subprocess import PIPE, run
+from subprocess import run
 from typing import Optional
 
 from lamin_logger import logger
@@ -40,4 +40,3 @@ def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = Non
         raise RuntimeError("Failed to set up postgres test instance.")
     time.sleep(2)
     return f"postgresql://postgres:pwd@0.0.0.0:5432/{name}"
-
