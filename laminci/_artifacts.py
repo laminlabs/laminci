@@ -19,12 +19,7 @@ def zip_docs_dir(zip_filename: str) -> None:
 
 
 def upload_docs_artifact_aws(package_name: str, zip_filename: str) -> None:
-    try:
-        import awscli  # noqa
-    except ImportError:
-        run("pip install awscli")
-
-    run(f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
+    run(f"aws s3 sync {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
 
 
 def upload_docs_artifact_lamindb(package_name: str, zip_filename: str) -> None:
