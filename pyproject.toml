@@ -12,6 +12,7 @@ dependencies = [
     # as an upstream dependency within lndb!
     "nox",
     "lamin_logger",
+    "yaml,
 ]
 
 [project.urls]
