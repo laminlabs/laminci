@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Mapping, Optional
 
+import nox
 from nox import Session
 
 from ._db import setup_local_test_postgres
@@ -61,5 +62,9 @@ def run_pytest(session: Session, coverage: bool = True, env: Optional[Mapping] =
 
 def build_docs(session: Session):
     prefix = "." if Path("./lndocs").exists() else ".."
-    session.install(f"{prefix}/lndocs")
+    if nox.options.default_venv_backend == "none":
+        session.run(*f"pip install {prefix}/lndocs".split())
+        session.run(*"lamin init --storage ./docsbuild".split())
+    else:
+        session.install(f"{prefix}/lndocs")
     session.run("lndocs")
