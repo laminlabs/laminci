@@ -40,7 +40,10 @@ def setup_test_instances_from_main_branch(session: Session, schema: str = None):
 
 
 def run_pre_commit(session: Session):
-    session.install("pre-commit")
+    if nox.options.default_venv_backend == "none":
+        session.run(*"pip install pre-commit".split())
+    else:
+        session.install("pre-commit")
     session.run("pre-commit", "install")
     session.run("pre-commit", "run", "--all-files")
 
