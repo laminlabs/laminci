@@ -67,7 +67,7 @@ def build_docs(session: Session):
     prefix = "." if Path("./lndocs").exists() else ".."
     if nox.options.default_venv_backend == "none":
         session.run(*f"pip install {prefix}/lndocs".split())
-        session.run(*"lamin init --storage ./docsbuild".split())
     else:
         session.install(f"{prefix}/lndocs")
+    # do not simply add instance creation here
     session.run("lndocs")
