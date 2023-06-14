@@ -35,7 +35,7 @@ def validate_version(version_str: str):
     if version.is_prerelease:
         if not len(version.release) == 2:
             raise SystemExit(
-                "Pre-releases should be of form 0.42a1 or 0.42rc1, yours is {version}"
+                f"Pre-releases should be of form 0.42a1 or 0.42rc1, yours is {version}"
             )
         else:
             return None
