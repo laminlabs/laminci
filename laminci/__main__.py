@@ -65,6 +65,6 @@ def main():
         run(f"git commit -m 'Release {version}'", shell=True)
         run("git push", shell=True)
         run(f"git tag {version}", shell=True)
-        run(f"git tag push origin {version}", shell=True)
+        run(f"git push origin {version}", shell=True)
         if args.pypi:
             run("flit publish", shell=True)
