@@ -6,11 +6,18 @@ from packaging.version import parse
 
 from ._env import get_package_name
 
-parser = argparse.ArgumentParser("Mark release")
+parser = argparse.ArgumentParser("laminci")
 subparsers = parser.add_subparsers(dest="command")
-migr = subparsers.add_parser("release")
+migr = subparsers.add_parser(
+    "release",
+    help="Help with release",
+    description=(
+        "Assumes you manually prepared the release commit!\n\nPlease edit the version"
+        " number in your package and prepare the release notes!"
+    ),
+)
 aa = migr.add_argument
-aa("--pypi", default=False, action="store_true", help="Publish to PyPI.")
+aa("--pypi", default=False, action="store_true", help="Publish to PyPI")
 
 
 def get_last_version_from_tags():
