@@ -53,7 +53,7 @@ def upload_docs_artifact_lamindb() -> None:
 
 
 def upload_docs_artifact(aws: bool = False) -> None:
-    if "GITHUB_EVENT_NAME" in os.environ and os.environ["GITHUB_EVENT_NAME"] != "push":
+    if os.getenv("GITHUB_EVENT_NAME") not in {"push", "repository_dispatch"}:
         logger.info("Only upload docs artifact for push event.")
         return None
 
@@ -63,9 +63,9 @@ def upload_docs_artifact(aws: bool = False) -> None:
         try:
             # this is super ugly but necessary right now
             # we might need to close the current instance as it might be corrupted
-            import lndb
+            import lamindb_setup
 
-            lndb.close()
+            lamindb_setup.close()
 
             import lamindb as ln  # noqa
 
