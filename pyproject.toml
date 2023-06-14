@@ -22,8 +22,6 @@ Home = "https://github.com/laminlabs/laminci"
 [project.optional-dependencies]
 dev = [
     "pre-commit",
-]
-test = [
     "pytest>=6.0",
     "pytest-cov",
 ]
