@@ -26,6 +26,9 @@ dev = [
     "pytest-cov",
 ]
 
+[project.scripts]
+laminci = "laminci.__main__:main"
+
 [tool.black]
 preview = true
 
