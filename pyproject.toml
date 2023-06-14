@@ -13,6 +13,7 @@ dependencies = [
     "nox",
     "lamin_logger",
     "pyyaml",
+    "toml",
 ]
 
 [project.urls]

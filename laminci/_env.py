@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+import toml  # type: ignore
 import yaml  # type: ignore
 
 
@@ -15,7 +16,12 @@ def load_project_yaml(root_directory: Optional[Path] = None) -> dict:
 
 
 def get_package_name(root_directory: Optional[Path] = None) -> str:
-    return load_project_yaml(root_directory=root_directory)["package_name"]
+    if Path("lamin-project.yaml").exists():
+        return load_project_yaml(root_directory=root_directory)["package_name"]
+    else:
+        with open("pyproject.toml") as f:
+            d = toml.load(f)
+        return d["project"]["name"].replace("-", "_")
 
 
 def get_schema_handle() -> Optional[str]:
