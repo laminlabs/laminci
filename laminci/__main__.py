@@ -62,8 +62,8 @@ def main():
         if response != "y":
             return None
         run(f"git commit -m 'Release {version}", shell=True)
-        run("git push")
+        run("git push", shell=True)
         run(f"git tag {version}", shell=True)
-        run(f"git tag push origin {version}")
+        run(f"git tag push origin {version}", shell=True)
         if args.pypi:
-            run("flit publish")
+            run("flit publish", shell=True)
