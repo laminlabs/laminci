@@ -61,7 +61,7 @@ def main():
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
             return None
-        run(f"git commit -m 'Release {version}", shell=True)
+        run(f"git commit -m 'Release {version}'", shell=True)
         run("git push", shell=True)
         run(f"git tag {version}", shell=True)
         run(f"git tag push origin {version}", shell=True)
