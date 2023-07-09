@@ -63,11 +63,14 @@ def run_pytest(session: Session, coverage: bool = True, env: Optional[Mapping] =
         session.run("coverage", "xml")
 
 
-def build_docs(session: Session):
+def build_docs(session: Session, strict: bool = False):
     prefix = "." if Path("./lndocs").exists() else ".."
     if nox.options.default_venv_backend == "none":
         session.run(*f"pip install {prefix}/lndocs".split())
     else:
         session.install(f"{prefix}/lndocs")
     # do not simply add instance creation here
-    session.run("lndocs")
+    if strict:
+        session.run("lndocs", "--strict")
+    else:
+        session.run("lndocs")
