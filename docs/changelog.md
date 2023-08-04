@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+📝 Account for blog | [24](https://github.com/laminlabs/laminci/pull/24) | [falexwolf](https://github.com/falexwolf) | 2023-08-04 |
 🚸 Add light-weight release management | [23](https://github.com/laminlabs/laminci/pull/23) | [falexwolf](https://github.com/falexwolf) | 2023-06-14 | 0.7.4
 ✨ Add `repository_dispatch` for docs upload | [22](https://github.com/laminlabs/laminci/pull/22) | [falexwolf](https://github.com/falexwolf) | 2023-06-14 | 0.6.8
 🚸 Add fallback for `get_package_name` | [21](https://github.com/laminlabs/laminci/pull/21) | [falexwolf](https://github.com/falexwolf) | 2023-06-14 | 0.6.7
