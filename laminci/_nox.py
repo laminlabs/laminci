@@ -19,6 +19,11 @@ def login_testuser2(session: Session, env: Optional[Mapping] = None):
     session.run(*(login_user_1.split(" ")), external=True, env=env)
 
 
+def login_laminapp_admin(session: Session, env: Optional[Mapping] = None):
+    login_laminapp_admin = "lamin login support@lamin.ai --password wLNng29pBadv2O9aKpwri2blCHzT1XUb5Ii9jxYL"  # noqa
+    session.run(*(login_laminapp_admin.split(" ")), external=True, env=env)
+
+
 def setup_test_instances_from_main_branch(session: Session, schema: str = None):
     # spin up a postgres test instance
     pgurl = setup_local_test_postgres()
