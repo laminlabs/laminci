@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+🚸 Return `get_package_name` returns `None` if there is no Python package | [25](https://github.com/laminlabs/laminci/pull/25) | [falexwolf](https://github.com/falexwolf) | 2023-08-18 |
 📝 Account for blog | [24](https://github.com/laminlabs/laminci/pull/24) | [falexwolf](https://github.com/falexwolf) | 2023-08-04 | 0.7.7
 🚸 Add light-weight release management | [23](https://github.com/laminlabs/laminci/pull/23) | [falexwolf](https://github.com/falexwolf) | 2023-06-14 | 0.7.4
 ✨ Add `repository_dispatch` for docs upload | [22](https://github.com/laminlabs/laminci/pull/22) | [falexwolf](https://github.com/falexwolf) | 2023-06-14 | 0.6.8
