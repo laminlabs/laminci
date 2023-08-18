@@ -15,18 +15,30 @@ def load_project_yaml(root_directory: Optional[Path] = None) -> dict:
     return d
 
 
-def get_package_name(root_directory: Optional[Path] = None) -> str:
+def get_package_name(root_directory: Optional[Path] = None) -> Optional[str]:
     if Path("lamin-project.yaml").exists():
-        return load_project_yaml(root_directory=root_directory)["package_name"]
-    else:
+        config = load_project_yaml(root_directory=root_directory)
+        if "package_name" in config:
+            return config["package_name"]
+        else:
+            return None
+    elif Path("pyproject.toml").exists():
         with open("pyproject.toml") as f:
             d = toml.load(f)
         return d["project"]["name"].replace("-", "_")
+    else:
+        return None
 
 
 def get_schema_handle() -> Optional[str]:
     package_name = get_package_name()
-    if package_name.startswith("lnschema_"):
-        return package_name.replace("lnschema_", "")
+    if package_name is not None:
+        if package_name.startswith("lnschema_"):
+            return package_name.replace("lnschema_", "")
+        else:
+            return None
     else:
-        return None
+        raise ValueError(
+            "Could not infer python package, add pyproject.toml or update"
+            " lamin-project.yaml"
+        )
