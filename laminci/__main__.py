@@ -61,10 +61,17 @@ def main():
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
             return None
-        run("git add -u", shell=True)
-        run(f"git commit -m 'Release {version}'", shell=True)
-        run("git push", shell=True)
-        run(f"git tag {version}", shell=True)
-        run(f"git push origin {version}", shell=True)
+        commands = [
+            "git add -u",
+            f"git commit -m 'Release {version}'",
+            "git push",
+            f"git tag {version}",
+            f"git push origin {version}",
+        ]
+        for command in commands:
+            print(f"\nrun: {command}")
+            run(command, shell=True)
         if args.pypi:
-            run("flit publish", shell=True)
+            command = "flit publish"
+            print(f"\nrun: {command}")
+            run(command, shell=True)
