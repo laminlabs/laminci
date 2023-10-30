@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import run
 from zipfile import ZipFile
 
-from lamin_logger import logger
+from lamin_utils import logger
 
 from ._env import get_package_name
 
