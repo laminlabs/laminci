@@ -11,7 +11,7 @@ dependencies = [
     # this CANNOT depend on lamindb as long as we use it
     # as an upstream dependency within lndb!
     "nox",
-    "lamin_logger",
+    "lamin_utils",
     "pyyaml",
     "toml",
 ]

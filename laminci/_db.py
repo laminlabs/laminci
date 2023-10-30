@@ -3,7 +3,7 @@ from pathlib import Path
 from subprocess import run
 from typing import Optional
 
-from lamin_logger import logger
+from lamin_utils import logger
 
 
 def setup_local_test_sqlite_file(src_settings, return_dir: bool = False):
