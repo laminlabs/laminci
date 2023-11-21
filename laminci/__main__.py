@@ -2,7 +2,7 @@ import argparse
 import importlib
 import re
 from subprocess import PIPE, run
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING  # noqa: TYP001
 
 from packaging.version import parse
 
@@ -48,15 +48,22 @@ def validate_version(version_str: str):
         raise SystemExit(f"Version should be of form 0.1.2, yours is {version}")
 
 
-def create_github_release(token: str, repo_name: str, version: str, release_name: str, body: str, draft: bool = False,
-                          generate_release_notes: bool = True) -> GitRelease:
+def create_github_release(
+    token: str,
+    repo_name: str,
+    version: str,
+    release_name: str,
+    body: str,
+    draft: bool = False,
+    generate_release_notes: bool = True,
+) -> GitRelease:
     from github import Github
 
     g = Github(token)
 
     repo = g.get_repo(repo_name)
 
-    pre_release_pattern = re.compile(r'\d+(\.\d+)?[abc]\d*')
+    pre_release_pattern = re.compile(r"\d+(\.\d+)?[abc]\d*")
     is_pre_release = bool(pre_release_pattern.search(version))
 
     release = repo.create_git_release(
@@ -65,7 +72,7 @@ def create_github_release(token: str, repo_name: str, version: str, release_name
         message=body,
         draft=draft,
         prerelease=is_pre_release,
-        generate_release_notes=generate_release_notes
+        generate_release_notes=generate_release_notes,
     )
 
     return release
@@ -104,12 +111,13 @@ def main():
             )
 
         token = "BLABLABLA"
-        create_github_release(token,
-                              repo_name=f"laminlabs/{package_name}",
-                              version=version,
-                              release_name=f"Release {version}",
-                              body="Find the changelog on https://lamin.ai/docs/changelog"
-                              )
+        create_github_release(
+            token,
+            repo_name=f"laminlabs/{package_name}",
+            version=version,
+            release_name=f"Release {version}",
+            body="Find the changelog on https://lamin.ai/docs/changelog",
+        )
 
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
