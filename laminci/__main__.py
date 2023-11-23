@@ -138,7 +138,7 @@ def main():
             )
 
         create_github_release(
-            repo_name=f"zethson/{package_name}",
+            repo_name=f"laminlabs/{package_name}",
             version=version,
             release_name=f"Release {version}",
         )
