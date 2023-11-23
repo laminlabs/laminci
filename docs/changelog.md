@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+Automatically make Github releases | [28](https://github.com/laminlabs/laminci/pull/28) | [Zethson](https://github.com/Zethson) | 2023-11-23 |
 ♻️ Replace CLI with lamindb-setup API calls | [26](https://github.com/laminlabs/laminci/pull/26) | [falexwolf](https://github.com/falexwolf) | 2023-10-30 | 0.9.0
 🚸 Return `get_package_name` returns `None` if there is no Python package | [25](https://github.com/laminlabs/laminci/pull/25) | [falexwolf](https://github.com/falexwolf) | 2023-08-18 | 0.8.0
 📝 Account for blog | [24](https://github.com/laminlabs/laminci/pull/24) | [falexwolf](https://github.com/falexwolf) | 2023-08-04 | 0.7.7
