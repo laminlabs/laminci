@@ -1,8 +1,11 @@
 import argparse
 import importlib
+import os
+import subprocess
 from subprocess import PIPE, run
+from typing import Union
 
-from packaging.version import parse
+from packaging.version import Version, parse
 
 from ._env import get_package_name
 
@@ -12,8 +15,8 @@ migr = subparsers.add_parser(
     "release",
     help="Help with release",
     description=(
-        "Assumes you manually prepared the release commit!\n\nPlease edit the version"
-        " number in your package and prepare the release notes!"
+        "Assumes you manually prepared the release commit!\n\n"
+        "Please edit the version number in your package and prepare the release notes!"
     ),
 )
 aa = migr.add_argument
@@ -43,6 +46,68 @@ def validate_version(version_str: str):
         raise SystemExit(f"Version should be of form 0.1.2, yours is {version}")
 
 
+def publish_github_release(
+    repo_name: str,
+    version: Union[str, Version],
+    release_name: str,
+    body: str = "",
+    draft: bool = False,
+    generate_release_notes: bool = True,
+):
+    version = parse(version)
+
+    try:
+        subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE)
+
+        try:
+            command = [
+                "gh",
+                "release",
+                "create",
+                f"{version}",
+                "--title",
+                release_name,
+                "--notes",
+                body,
+                "--generate-notes",
+            ]
+            if version.is_prerelease:
+                command.append("--prerelease")
+
+            print(f"\nrun: {command}")
+            subprocess.run(command, check=True, stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
+    except subprocess.CalledProcessError:
+        try:
+            from github import Github, GithubException
+
+            token = (
+                os.getenv("GITHUB_TOKEN")
+                if os.getenv("GITHUB_TOKEN")
+                else input("Github token:")
+            )
+            g = Github(token)
+
+            try:
+                repo = g.get_repo(repo_name)
+                repo.create_git_release(
+                    tag=str(version),
+                    name=release_name,
+                    message=body,
+                    draft=draft,
+                    prerelease=version.is_prerelease,
+                    generate_release_notes=generate_release_notes,
+                )
+            except GithubException as e:
+                raise SystemExit(f"Error creating GitHub release using `PyGithub`: {e}")
+        except ImportError:
+            raise SystemExit(
+                "Neither the Github CLI ('gh') nor PyGithub were accessible.\n"
+                "Please install one of the two."
+            )
+
+
 def main():
     args = parser.parse_args()
 
@@ -57,10 +122,12 @@ def main():
                 f"Your version ({version}) should increment the previous version"
                 f" ({previous_version})"
             )
+
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
             return None
+
         commands = [
             "git add -u",
             f"git commit -m 'Release {version}'",
@@ -71,6 +138,13 @@ def main():
         for command in commands:
             print(f"\nrun: {command}")
             run(command, shell=True)
+
+        publish_github_release(
+            repo_name=f"laminlabs/{package_name}",
+            version=version,
+            release_name=f"Release {version}",
+        )
+
         if args.pypi:
             command = "flit publish"
             print(f"\nrun: {command}")
