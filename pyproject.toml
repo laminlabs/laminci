@@ -14,7 +14,6 @@ dependencies = [
     "lamin_utils",
     "pyyaml",
     "toml",
-    "pygithub"
 ]
 
 [project.urls]

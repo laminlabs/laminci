@@ -1,15 +1,12 @@
 import argparse
 import importlib
-import re
+import os
+import subprocess
 from subprocess import PIPE, run
-from typing import TYPE_CHECKING  # noqa: TYP001
 
-from packaging.version import parse
+from packaging.version import Version, parse
 
 from ._env import get_package_name
-
-if TYPE_CHECKING:
-    from github.GitRelease import GitRelease
 
 parser = argparse.ArgumentParser("laminci")
 subparsers = parser.add_subparsers(dest="command")
@@ -49,33 +46,63 @@ def validate_version(version_str: str):
 
 
 def create_github_release(
-    token: str,
     repo_name: str,
-    version: str,
+    version: str | Version,
     release_name: str,
-    body: str,
+    body: str = "",
     draft: bool = False,
     generate_release_notes: bool = True,
-) -> GitRelease:
-    from github import Github
+):
+    version = parse(version)
 
-    g = Github(token)
+    try:
+        subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE)
 
-    repo = g.get_repo(repo_name)
+        try:
+            gh_rl_cmd = [
+                "gh",
+                "release",
+                "create",
+                f"{version}",
+                "--title",
+                release_name,
+                "--notes",
+                body,
+                "--generate-notes",
+            ]
+            if version.is_prerelease:
+                gh_rl_cmd.append("--prerelease")
+            subprocess.run(gh_rl_cmd, check=True, stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
+    except subprocess.CalledProcessError:
+        try:
+            from github import Github, GithubException
 
-    pre_release_pattern = re.compile(r"\d+(\.\d+)?[abc]\d*")
-    is_pre_release = bool(pre_release_pattern.search(version))
+            token = (
+                os.getenv("GITHUB_TOKEN")
+                if os.getenv("GITHUB_TOKEN")
+                else input("Github token:")
+            )
+            g = Github(token)
 
-    release = repo.create_git_release(
-        tag=version,
-        name=release_name,
-        message=body,
-        draft=draft,
-        prerelease=is_pre_release,
-        generate_release_notes=generate_release_notes,
-    )
-
-    return release
+            try:
+                repo = g.get_repo(repo_name)
+                repo.create_git_release(
+                    tag=str(version),
+                    name=release_name,
+                    message=body,
+                    draft=draft,
+                    prerelease=version.is_prerelease,
+                    generate_release_notes=generate_release_notes,
+                )
+            except GithubException as e:
+                raise SystemExit(f"Error creating GitHub release using `PyGithub`: {e}")
+        except ImportError:
+            raise SystemExit(
+                "Neither the Github CLI ('gh') nor PyGithub were accessible.\n"
+                "Please install one of the two."
+            )
 
 
 def publish_tag_pypi_release(args, version: str):
@@ -110,13 +137,10 @@ def main():
                 f" ({previous_version})"
             )
 
-        token = "BLABLABLA"
         create_github_release(
-            token,
-            repo_name=f"laminlabs/{package_name}",
+            repo_name=f"zethson/{package_name}",
             version=version,
             release_name=f"Release {version}",
-            body="Find the changelog on https://lamin.ai/docs/changelog",
         )
 
         pypi = " & publish to PyPI" if args.pypi else ""
