@@ -60,7 +60,7 @@ def publish_github_release(
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE)
 
         try:
-            gh_rl_cmd = [
+            command = [
                 "gh",
                 "release",
                 "create",
@@ -72,8 +72,10 @@ def publish_github_release(
                 "--generate-notes",
             ]
             if version.is_prerelease:
-                gh_rl_cmd.append("--prerelease")
-            subprocess.run(gh_rl_cmd, check=True, stdout=subprocess.PIPE)
+                command.append("--prerelease")
+
+            print(f"\nrun: {command}")
+            subprocess.run(command, check=True, stdout=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
             raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
     except subprocess.CalledProcessError:
