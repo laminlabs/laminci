@@ -46,7 +46,7 @@ def validate_version(version_str: str):
         raise SystemExit(f"Version should be of form 0.1.2, yours is {version}")
 
 
-def create_github_release(
+def publish_github_release(
     repo_name: str,
     version: Union[str, Version],
     release_name: str,
@@ -106,23 +106,6 @@ def create_github_release(
             )
 
 
-def publish_tag_pypi_release(args, version: str):
-    commands = [
-        "git add -u",
-        f"git commit -m 'Release {version}'",
-        "git push",
-        f"git tag {version}",
-        f"git push origin {version}",
-    ]
-    for command in commands:
-        print(f"\nrun: {command}")
-        run(command, shell=True)
-    if args.pypi:
-        command = "flit publish"
-        print(f"\nrun: {command}")
-        run(command, shell=True)
-
-
 def main():
     args = parser.parse_args()
 
@@ -138,14 +121,29 @@ def main():
                 f" ({previous_version})"
             )
 
-        create_github_release(
+        pypi = " & publish to PyPI" if args.pypi else ""
+        response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
+        if response != "y":
+            return None
+
+        commands = [
+            "git add -u",
+            f"git commit -m 'Release {version}'",
+            "git push",
+            f"git tag {version}",
+            f"git push origin {version}",
+        ]
+        for command in commands:
+            print(f"\nrun: {command}")
+            run(command, shell=True)
+
+        publish_github_release(
             repo_name=f"laminlabs/{package_name}",
             version=version,
             release_name=f"Release {version}",
         )
 
-        pypi = " & publish to PyPI" if args.pypi else ""
-        response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
-        if response != "y":
-            return None
-        publish_tag_pypi_release(args, version)
+        if args.pypi:
+            command = "flit publish"
+            print(f"\nrun: {command}")
+            run(command, shell=True)
