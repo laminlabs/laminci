@@ -3,6 +3,7 @@ import importlib
 import os
 import subprocess
 from subprocess import PIPE, run
+from typing import Union
 
 from packaging.version import Version, parse
 
@@ -47,7 +48,7 @@ def validate_version(version_str: str):
 
 def create_github_release(
     repo_name: str,
-    version: str | Version,
+    version: Union[str, Version],
     release_name: str,
     body: str = "",
     draft: bool = False,
