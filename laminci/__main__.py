@@ -76,9 +76,9 @@ def publish_github_release(
 
             print(f"\nrun: {command}")
             subprocess.run(command, check=True, stdout=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         try:
             from github import Github, GithubException
 
