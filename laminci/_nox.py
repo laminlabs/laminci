@@ -5,6 +5,7 @@ from typing import Dict, Optional
 import nox
 from nox import Session
 
+from . import _nox_logger  # noqa, silence logger
 from ._env import get_package_name
 
 
