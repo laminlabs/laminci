@@ -25,14 +25,6 @@ def login_testuser2(session: Session, env: Optional[Dict[str, str]] = None):
     ln_setup.login("testuser2@lamin.ai", key="goeoNJKE61ygbz1vhaCVynGERaRrlviPBVQsjkhz")
 
 
-def login_laminapp_admin(session: Session, env: Optional[Dict[str, str]] = None):
-    import lamindb_setup as ln_setup
-
-    if env is not None:
-        os.environ.update(env)
-    ln_setup.login("support@lamin.ai", key="wLNng29pBadv2O9aKpwri2blCHzT1XUb5Ii9jxYL")
-
-
 def run_pre_commit(session: Session):
     if nox.options.default_venv_backend == "none":
         session.run(*"pip install pre-commit".split())
