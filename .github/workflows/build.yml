@@ -29,8 +29,7 @@ jobs:
           ssh-key: ${{ secrets.READ_LNDOCS }}
           path: lndocs
           ref: main
-      - name: Setup Python
-        uses: actions/setup-python@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Cache pre-commit
@@ -39,8 +38,11 @@ jobs:
           path: |
             ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-      - run: |
-          python -m pip install --upgrade pip
-          pip install nox
+      - run: pip install nox
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
       - run: nox -s lint
       - run: nox -s build
