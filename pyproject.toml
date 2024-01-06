@@ -14,6 +14,7 @@ dependencies = [
     "lamin_utils",
     "pyyaml",
     "toml",
+    "boto3",
 ]
 
 [project.urls]
@@ -24,7 +25,6 @@ dev = [
     "pre-commit",
     "pytest>=6.0",
     "pytest-cov",
-    "boto3",
     "lamindb_setup",
 ]
 
