@@ -51,6 +51,11 @@ def session_decorator(
     _REGISTRY[final_name] = fn
     # this is the line we add to silence the httpx logger
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("botocore.credentials").setLevel(logging.WARNING)
+    logging.getLogger("botocore.hooks").setLevel(logging.WARNING)
+    logging.getLogger("botocore.utils").setLevel(logging.WARNING)
+    logging.getLogger("botocore.auth").setLevel(logging.WARNING)
+    logging.getLogger("botocore.endpoint").setLevel(logging.WARNING)
     return fn
 
 
