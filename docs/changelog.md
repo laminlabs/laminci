@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+🎨 Pull testuser API keys from AWS secrets | [32](https://github.com/laminlabs/laminci/pull/32) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 |
 🎨 Remove duplication of public private nox module | [31](https://github.com/laminlabs/laminci/pull/31) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 | 0.10.0
 🚸 Silence httpx logger | [30](https://github.com/laminlabs/laminci/pull/30) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 |
 Automatically make Github releases | [28](https://github.com/laminlabs/laminci/pull/28) | [Zethson](https://github.com/Zethson) | 2023-11-23 |
