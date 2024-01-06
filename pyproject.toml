@@ -24,6 +24,8 @@ dev = [
     "pre-commit",
     "pytest>=6.0",
     "pytest-cov",
+    "boto3",
+    "lamindb_setup",
 ]
 
 [project.scripts]

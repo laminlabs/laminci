@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from typing import Dict, Optional
@@ -9,20 +10,35 @@ from . import _nox_logger  # noqa, silence logger
 from ._env import get_package_name
 
 
-def login_testuser1(session: Session, env: Optional[Dict[str, str]] = None):
+def _login_lamin_user(user_email: str, env: Optional[Dict[str, str]] = None):
+    import boto3
     import lamindb_setup as ln_setup
 
     if env is not None:
         os.environ.update(env)
-    ln_setup.login("testuser1@lamin.ai", key="cEvcwMJFX4OwbsYVaMt2Os6GxxGgDUlBGILs2RyS")
+    session = boto3.session.Session()
+    client = session.client(
+        service_name="secretsmanager",
+        region_name="us-east-1",
+    )
+    arn = (
+        "arn:aws:secretsmanager:us-east-1:586130067823:secret:laminlabs-internal-sZj1MU"
+    )
+    secrets = json.loads(client.get_secret_value(SecretId=arn)["SecretString"])
+    if user_email == "testuser1@lamin.ai":
+        ln_setup.login(user_email, key=secrets["LAMIN_TESTUSER1_API_KEY"])
+    elif user_email == "testuser2@lamin.ai":
+        ln_setup.login(user_email, key=secrets["LAMIN_TESTUSER2_API_KEY"])
+    else:
+        raise NotImplementedError
+
+
+def login_testuser1(session: Session, env: Optional[Dict[str, str]] = None):
+    _login_lamin_user("testuser1@lamin.ai", env=env)
 
 
 def login_testuser2(session: Session, env: Optional[Dict[str, str]] = None):
-    import lamindb_setup as ln_setup
-
-    if env is not None:
-        os.environ.update(env)
-    ln_setup.login("testuser2@lamin.ai", key="goeoNJKE61ygbz1vhaCVynGERaRrlviPBVQsjkhz")
+    _login_lamin_user("testuser2@lamin.ai", env=env)
 
 
 def run_pre_commit(session: Session):
