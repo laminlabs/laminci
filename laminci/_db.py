@@ -37,6 +37,9 @@ def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = Non
             f" container '{name}'"
         )
     else:
-        raise RuntimeError("Failed to set up postgres test instance.")
+        raise RuntimeError(
+            "Failed to set up postgres test instance. Try running\n"
+            f"docker stop {name} && docker rm {name}"
+        )
     time.sleep(2)
     return f"postgresql://postgres:pwd@0.0.0.0:5432/{name}"
