@@ -3,6 +3,10 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+🔇 Silence more loggers | [33](https://github.com/laminlabs/laminci/pull/33) | [falexwolf](https://github.com/falexwolf) | 2024-02-29 | 0.11.3
+🎨 Pull testuser API keys from AWS secrets | [32](https://github.com/laminlabs/laminci/pull/32) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 | 0.11.0
+🎨 Remove duplication of public private nox module | [31](https://github.com/laminlabs/laminci/pull/31) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 | 0.10.0
+🚸 Silence httpx logger | [30](https://github.com/laminlabs/laminci/pull/30) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 |
 Automatically make Github releases | [28](https://github.com/laminlabs/laminci/pull/28) | [Zethson](https://github.com/Zethson) | 2023-11-23 |
 ♻️ Replace CLI with lamindb-setup API calls | [26](https://github.com/laminlabs/laminci/pull/26) | [falexwolf](https://github.com/falexwolf) | 2023-10-30 | 0.9.0
 🚸 Return `get_package_name` returns `None` if there is no Python package | [25](https://github.com/laminlabs/laminci/pull/25) | [falexwolf](https://github.com/falexwolf) | 2023-08-18 | 0.8.0

@@ -113,6 +113,9 @@ def main():
 
     if args.command == "release":
         package_name = get_package_name()
+        # cannot do the below as this wouldn't register immediate changes
+        # from importlib.metadata import version as get_version
+        # version = get_version(package_name)
         module = importlib.import_module(package_name, package=".")
         version = module.__version__
         previous_version = get_last_version_from_tags()
