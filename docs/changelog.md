@@ -3,7 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
-♻️ Make compat with 3.8 | [35](https://github.com/laminlabs/laminci/pull/35) | [falexwolf](https://github.com/falexwolf) | 2024-04-05 |
+♻️ Make compat with 3.8 | [35](https://github.com/laminlabs/laminci/pull/35) | [falexwolf](https://github.com/falexwolf) | 2024-04-05 | 0.12.1
 ♻️ UV for docs building | [34](https://github.com/laminlabs/laminci/pull/34) | [Zethson](https://github.com/Zethson) | 2024-03-25 | 0.12.0
 🔇 Silence more loggers | [33](https://github.com/laminlabs/laminci/pull/33) | [falexwolf](https://github.com/falexwolf) | 2024-02-29 | 0.11.3
 🎨 Pull testuser API keys from AWS secrets | [32](https://github.com/laminlabs/laminci/pull/32) | [falexwolf](https://github.com/falexwolf) | 2024-01-06 | 0.11.0
