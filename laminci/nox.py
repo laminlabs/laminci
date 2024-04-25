@@ -1,12 +1,13 @@
 import json
 import os
+import shlex
 from pathlib import Path
 from typing import Dict, Optional
 
 import nox
 from nox import Session
 
-from . import _nox_logger  # noqa, silence logger
+from . import _nox_logger  # noqa, the import silences the logger
 from ._env import get_package_name
 
 
@@ -41,9 +42,14 @@ def login_testuser2(session: Session, env: Optional[Dict[str, str]] = None):
     _login_lamin_user("testuser2@lamin.ai", env=env)
 
 
+def run(session: Session, s: str):
+    assert (args := shlex.split(s))
+    return session.run(*args)
+
+
 def run_pre_commit(session: Session):
     if nox.options.default_venv_backend == "none":
-        session.run(*"pip install pre-commit".split())
+        session.run(*"uv pip install --system pre-commit".split())
     else:
         session.install("pre-commit")
     session.run("pre-commit", "install")
