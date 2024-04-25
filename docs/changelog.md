@@ -3,7 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
-✨ Add run function to nox | [36](https://github.com/laminlabs/laminci/pull/36) | [falexwolf](https://github.com/falexwolf) | 2024-04-25 |
+✨ Add run function to nox | [36](https://github.com/laminlabs/laminci/pull/36) | [falexwolf](https://github.com/falexwolf) | 2024-04-25 | 0.13.0
 ♻️ Make compat with 3.8 | [35](https://github.com/laminlabs/laminci/pull/35) | [falexwolf](https://github.com/falexwolf) | 2024-04-05 | 0.12.1
 ♻️ UV for docs building | [34](https://github.com/laminlabs/laminci/pull/34) | [Zethson](https://github.com/Zethson) | 2024-03-25 | 0.12.0
 🔇 Silence more loggers | [33](https://github.com/laminlabs/laminci/pull/33) | [falexwolf](https://github.com/falexwolf) | 2024-02-29 | 0.11.3
