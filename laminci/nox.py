@@ -42,9 +42,9 @@ def login_testuser2(session: Session, env: Optional[Dict[str, str]] = None):
     _login_lamin_user("testuser2@lamin.ai", env=env)
 
 
-def run(session: Session, s: str):
+def run(session: Session, s: str, **kwargs):
     assert (args := shlex.split(s))
-    return session.run(*args)
+    return session.run(*args, **kwargs)
 
 
 def run_pre_commit(session: Session):
