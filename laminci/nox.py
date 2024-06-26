@@ -10,6 +10,8 @@ from nox import Session
 from . import _nox_logger  # noqa, the import silences the logger
 from ._env import get_package_name
 
+SYSTEM = " --system " if os.getenv("CI") else ""
+
 
 def _login_lamin_user(user_email: str, env: Optional[Dict[str, str]] = None):
     import boto3
