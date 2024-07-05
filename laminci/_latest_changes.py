@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     github_event_path: Path
     github_event_name: str | None = None
     input_token: SecretStr
+    input_docs_token: SecretStr | None
     input_latest_changes_file: Path = Path("README.md")
     input_latest_changes_header: str = "# Changelog\n\n"
     input_template_file: Path = Path(__file__).parent / "latest-changes.jinja2"
@@ -294,7 +295,10 @@ def main() -> None:
             ["git", "commit", "-m", "📝 Update changelog"], check=True, cwd="lamin-docs"
         )
         logging.info(f"Pushing changes: {settings.input_latest_changes_file}")
-        token = settings.input_token.get_secret_value()
+        if settings.input_docs_token is not None:
+            token = settings.input_docs_token.get_secret_value()
+        else:
+            token = settings.input_token.get_secret_value()
         subprocess.run(
             [
                 "git",
