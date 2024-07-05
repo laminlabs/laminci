@@ -22,6 +22,14 @@ dependencies = [
 Home = "https://github.com/laminlabs/laminci"
 
 [project.optional-dependencies]
+changes = [
+    "PyGithub",
+    "pydantic>=2.0.0",
+    "pydantic-settings",
+    "httpx>=0.15.5,<0.26.0",
+    "email-validator",
+    "Jinja2",
+]
 dev = [
     "pre-commit",
     "pytest>=6.0",
