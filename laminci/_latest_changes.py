@@ -110,7 +110,10 @@ def generate_content(
             f"The latest changes file at: {settings.input_latest_changes_file} doesn't"
             f" seem to contain the header RegEx: {settings.input_latest_changes_header}"
         )
-    template_content = settings.input_template_file.read_text("utf-8")
+    template_content = (
+        "- {{pr.title}} [PR]({{pr.html_url}})"
+        " [@{{pr.user.login}}]({{pr.user.html_url}})"
+    )
     template = Template(template_content)
     message = template.render(pr=pr)
     if message in content:
