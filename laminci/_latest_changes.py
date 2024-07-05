@@ -44,7 +44,6 @@ class Settings(BaseSettings):
     github_event_path: Path
     github_event_name: str | None = None
     input_token: SecretStr
-    input_branch_name: str
     input_latest_changes_file: Path = Path("README.md")
     input_latest_changes_header: str = "### Latest Changes"
     input_template_file: Path = Path(__file__).parent / "latest-changes.jinja2"
