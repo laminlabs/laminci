@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import json
 import os
 import subprocess
 from subprocess import PIPE, run
@@ -120,15 +121,20 @@ def main():
         # cannot do the below as this wouldn't register immediate changes
         # from importlib.metadata import version as get_version
         # version = get_version(package_name)
-        module = importlib.import_module(package_name, package=".")
-        version = module.__version__
-        previous_version = get_last_version_from_tags()
-        validate_version(version)
-        if parse(version) <= parse(previous_version):
-            raise SystemExit(
-                f"Your version ({version}) should increment the previous version"
-                f" ({previous_version})"
-            )
+        if package_name is not None:
+            module = importlib.import_module(package_name, package=".")
+            version = module.__version__
+            previous_version = get_last_version_from_tags()
+            validate_version(version)
+            if parse(version) <= parse(previous_version):
+                raise SystemExit(
+                    f"Your version ({version}) should increment the previous version"
+                    f" ({previous_version})"
+                )
+        else:
+            previous_version = "?"
+            with open("ui/package.json", "r") as file:
+                version = json.load(file)["version"]
 
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
