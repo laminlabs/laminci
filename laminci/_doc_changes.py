@@ -1,3 +1,8 @@
+# The code in this file is based on the latest-changes tool of Sebastian Ramirez
+# See the original license
+# Since mid 2024, the tool has been developed by Lamin within the proprietary
+# laminci package
+
 # MIT License
 
 # Copyright (c) 2020 Sebastián Ramírez
@@ -43,11 +48,10 @@ class Settings(BaseSettings):
     github_repository: str
     github_event_path: Path
     github_event_name: str | None = None
-    input_token: SecretStr
-    input_docs_token: SecretStr | None = None
-    input_latest_changes_file: Path = Path("README.md")
+    input_token: SecretStr  # typically GITHUB_TOKEN
+    input_docs_token: SecretStr | None = None  # needed when writing to lamin-docs
+    input_latest_changes_file: Path = Path("docs/changelog.md")
     input_latest_changes_header: str = "# Changelog\n\n"
-    input_template_file: Path = Path(__file__).parent / "latest-changes.jinja2"
     input_end_regex: str = "(^### .*)|(^## .*)"
     input_debug_logs: bool | None = False
     input_labels: list[Section] = [
@@ -58,8 +62,6 @@ class Settings(BaseSettings):
         Section(label="refactor", header="Refactors"),
         Section(label="upgrade", header="Upgrades"),
         Section(label="docs", header="Docs"),
-        Section(label="lang-all", header="Translations"),
-        Section(label="internal", header="Internal"),
     ]
     input_label_header_prefix: str = "#### "
 
@@ -106,7 +108,7 @@ def generate_content(
         settings.input_latest_changes_header, content, flags=re.MULTILINE
     )
     if not header_match:
-        logging.warning(
+        logging.info(
             f"The latest changes file at: {settings.input_latest_changes_file} doesn't"
             f" seem to contain the header RegEx: {settings.input_latest_changes_header}"
         )
@@ -214,7 +216,7 @@ def generate_content(
     return new_content
 
 
-def main() -> None:
+def doc_changes() -> None:
     # Ref: https://github.com/actions/runner/issues/2033
     logging.info(
         "GitHub Actions workaround for git in containers, ref:"
@@ -302,10 +304,10 @@ def main() -> None:
             ["git", "commit", "-m", "📝 Update changelog"], check=True, cwd=cwd
         )
         logging.info(f"Pushing changes: {settings.input_latest_changes_file}")
-        if settings.input_docs_token is not None:
-            token = settings.input_docs_token.get_secret_value()
-        else:
+        if settings.input_docs_token is None:
             token = settings.input_token.get_secret_value()
+        else:
+            token = settings.input_docs_token.get_secret_value()
         subprocess.run(
             [
                 "git",
@@ -320,7 +322,3 @@ def main() -> None:
         subprocess.run(["git", "push"], check=True, cwd=cwd)
         break
     logging.info("Finished")
-
-
-if __name__ == "__main__":
-    main()
