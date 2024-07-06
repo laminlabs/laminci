@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     github_event_path: Path
     github_event_name: str | None = None
     input_token: SecretStr
-    input_docs_token: SecretStr | None
+    input_docs_token: SecretStr | None = None
     input_latest_changes_file: Path = Path("README.md")
     input_latest_changes_header: str = "# Changelog\n\n"
     input_template_file: Path = Path(__file__).parent / "latest-changes.jinja2"
