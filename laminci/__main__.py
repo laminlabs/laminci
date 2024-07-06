@@ -22,7 +22,7 @@ migr = subparsers.add_parser(
 aa = migr.add_argument
 aa("--pypi", default=False, action="store_true", help="Publish to PyPI")
 subparsers.add_parser(
-    "changes",
+    "doc-changes",
     help="Write latest changes",
 )
 
@@ -156,7 +156,7 @@ def main():
             command = "flit publish"
             print(f"\nrun: {command}")
             run(command, shell=True)
-    elif args.command == "changes":
+    elif args.command == "doc-changes":
         from ._latest_changes import main
 
         main()

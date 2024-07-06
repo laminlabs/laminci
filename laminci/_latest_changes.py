@@ -106,10 +106,13 @@ def generate_content(
         settings.input_latest_changes_header, content, flags=re.MULTILINE
     )
     if not header_match:
-        raise RuntimeError(
+        logging.warning(
             f"The latest changes file at: {settings.input_latest_changes_file} doesn't"
             f" seem to contain the header RegEx: {settings.input_latest_changes_header}"
         )
+        header_match_end = 0
+    else:
+        header_match_end = header_match.end()
     template_content = (
         "- {{pr.title}} [PR]({{pr.html_url}})"
         " [@{{pr.user.login}}]({{pr.user.html_url}})"
@@ -120,17 +123,17 @@ def generate_content(
         raise RuntimeError(
             f"It seems these PR's latest changes were already added: {pr.number}"
         )
-    pre_header_content = content[: header_match.end()].strip()
-    post_header_content = content[header_match.end() :].strip()
+    pre_header_content = content[:header_match_end].strip()
+    post_header_content = content[header_match_end:].strip()
     next_release_match = re.search(
         settings.input_end_regex, post_header_content, flags=re.MULTILINE
     )
     release_end = (
         len(content)
         if not next_release_match
-        else header_match.end() + next_release_match.start()
+        else header_match_end + next_release_match.start()
     )
-    release_content = content[header_match.end() : release_end].strip()
+    release_content = content[header_match_end:release_end].strip()
     post_release_content = content[release_end:].strip()
     sections: list[SectionContent] = []
     sectionless_content = ""
@@ -245,14 +248,18 @@ def main() -> None:
         logging.info("The PR was not merged, nothing else to do.")
         sys.exit(0)
     # clone lamin-docs
-    subprocess.run(
-        [
-            "git",
-            "clone",
-            "--depth=1",
-            "https://github.com/laminlabs/lamin-docs",
-        ]
-    )
+    if settings.input_latest_changes_file.as_posix().startswith("lamin-docs"):
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "--depth=1",
+                "https://github.com/laminlabs/lamin-docs",
+            ]
+        )
+        cwd = "lamin-docs"
+    else:
+        cwd = None
     if not settings.input_latest_changes_file.is_file():
         logging.error(
             "The latest changes files doesn't seem to exist:"
@@ -261,12 +268,12 @@ def main() -> None:
         sys.exit(1)
     logging.info("Setting up GitHub Actions git user")
     subprocess.run(
-        ["git", "config", "user.name", "github-actions"], check=True, cwd="lamin-docs"
+        ["git", "config", "user.name", "github-actions"], check=True, cwd=cwd
     )
     subprocess.run(
         ["git", "config", "user.email", "github-actions@github.com"],
         check=True,
-        cwd="lamin-docs",
+        cwd=cwd,
     )
     number_of_trials = 10
     logging.info(f"Number of trials (for race conditions): {number_of_trials}")
@@ -289,10 +296,10 @@ def main() -> None:
                 str(settings.input_latest_changes_file).replace("lamin-docs/", ""),
             ],
             check=True,
-            cwd="lamin-docs",
+            cwd=cwd,
         )
         subprocess.run(
-            ["git", "commit", "-m", "📝 Update changelog"], check=True, cwd="lamin-docs"
+            ["git", "commit", "-m", "📝 Update changelog"], check=True, cwd=cwd
         )
         logging.info(f"Pushing changes: {settings.input_latest_changes_file}")
         if settings.input_docs_token is not None:
@@ -308,9 +315,9 @@ def main() -> None:
                 f"https://x-access-token:{token}@github.com/laminlabs/lamin-docs.git",
             ],
             check=True,
-            cwd="lamin-docs",
+            cwd=cwd,
         )
-        subprocess.run(["git", "push"], check=True, cwd="lamin-docs")
+        subprocess.run(["git", "push"], check=True, cwd=cwd)
         break
     logging.info("Finished")
 
