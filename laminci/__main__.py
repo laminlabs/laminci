@@ -163,6 +163,6 @@ def main():
             print(f"\nrun: {command}")
             run(command, shell=True)
     elif args.command == "doc-changes":
-        from ._docs_changes import doc_changes
+        from ._doc_changes import doc_changes
 
         doc_changes()
