@@ -48,10 +48,10 @@ class Settings(BaseSettings):
     github_repository: str
     github_event_path: Path
     github_event_name: str | None = None
-    input_token: SecretStr  # typically GITHUB_TOKEN
-    input_docs_token: SecretStr | None = None  # needed when writing to lamin-docs
-    input_latest_changes_file: Path = Path("docs/changelog.md")
-    input_latest_changes_header: str = "# Changelog\n\n"
+    repo_token: SecretStr  # typically GITHUB_TOKEN
+    docs_token: SecretStr | None = None  # needed when writing to lamin-docs
+    changelog_file: Path = Path("docs/changelog.md")
+    doc_changes_header: str = "# Changelog\n\n"
     input_end_regex: str = "(^### .*)|(^## .*)"
     input_debug_logs: bool | None = False
     input_labels: list[Section] = [
@@ -104,13 +104,11 @@ def generate_content(
     pr: PullRequest | TemplateDataPR,
     labels: list[str],
 ) -> str:
-    header_match = re.search(
-        settings.input_latest_changes_header, content, flags=re.MULTILINE
-    )
+    header_match = re.search(settings.doc_changes_header, content, flags=re.MULTILINE)
     if not header_match:
         logging.info(
-            f"The latest changes file at: {settings.input_latest_changes_file} doesn't"
-            f" seem to contain the header RegEx: {settings.input_latest_changes_header}"
+            f"The latest changes file at: {settings.changelog_file} doesn't"
+            f" seem to contain the header RegEx: {settings.doc_changes_header}"
         )
         header_match_end = 0
     else:
@@ -228,7 +226,7 @@ def doc_changes() -> None:
     settings = Settings()
     if settings.input_debug_logs:
         logging.info(f"Using config: {settings.json()}")
-    g = Github(settings.input_token.get_secret_value())
+    g = Github(settings.repo_token.get_secret_value())
     repo = g.get_repo(settings.github_repository)
     if not settings.github_event_path.is_file():
         logging.error(f"No event file was found at: {settings.github_event_path}")
@@ -250,7 +248,7 @@ def doc_changes() -> None:
         logging.info("The PR was not merged, nothing else to do.")
         sys.exit(0)
     # clone lamin-docs
-    if settings.input_latest_changes_file.as_posix().startswith("lamin-docs"):
+    if settings.changelog_file.as_posix().startswith("lamin-docs"):
         subprocess.run(
             [
                 "git",
@@ -262,10 +260,9 @@ def doc_changes() -> None:
         cwd = "lamin-docs"
     else:
         cwd = None
-    if not settings.input_latest_changes_file.is_file():
+    if not settings.changelog_file.is_file():
         logging.error(
-            "The latest changes files doesn't seem to exist:"
-            f" {settings.input_latest_changes_file}"
+            f"The latest changes files doesn't seem to exist: {settings.changelog_file}"
         )
         sys.exit(1)
     logging.info("Setting up GitHub Actions git user")
@@ -281,7 +278,7 @@ def doc_changes() -> None:
     logging.info(f"Number of trials (for race conditions): {number_of_trials}")
     for trial in range(10):
         logging.info(f"Running trial: {trial}")
-        content = settings.input_latest_changes_file.read_text()
+        content = settings.changelog_file.read_text()
 
         new_content = generate_content(
             content=content,
@@ -289,13 +286,13 @@ def doc_changes() -> None:
             pr=pr,
             labels=[label.name for label in pr.labels],
         )
-        settings.input_latest_changes_file.write_text(new_content)
-        logging.info(f"Committing changes to: {settings.input_latest_changes_file}")
+        settings.changelog_file.write_text(new_content)
+        logging.info(f"Committing changes to: {settings.changelog_file}")
         subprocess.run(
             [
                 "git",
                 "add",
-                str(settings.input_latest_changes_file).replace("lamin-docs/", ""),
+                str(settings.changelog_file).replace("lamin-docs/", ""),
             ],
             check=True,
             cwd=cwd,
@@ -303,11 +300,11 @@ def doc_changes() -> None:
         subprocess.run(
             ["git", "commit", "-m", "📝 Update changelog"], check=True, cwd=cwd
         )
-        logging.info(f"Pushing changes: {settings.input_latest_changes_file}")
-        if settings.input_docs_token is None:
-            token = settings.input_token.get_secret_value()
+        logging.info(f"Pushing changes: {settings.changelog_file}")
+        if settings.docs_token is None:
+            token = settings.repo_token.get_secret_value()
         else:
-            token = settings.input_docs_token.get_secret_value()
+            token = settings.docs_token.get_secret_value()
         subprocess.run(
             [
                 "git",
