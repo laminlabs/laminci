@@ -124,7 +124,7 @@ def install_lamindb(
             "pip",
             "install",
             "--system",
-            "--reinstall",
+            "--no-deps",
             "./lamindb/sub/lamindb-setup",
             "./lamindb/sub/lnschema-core",
             "./lamindb/sub/lamin-cli",
