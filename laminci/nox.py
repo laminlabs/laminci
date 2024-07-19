@@ -99,7 +99,8 @@ def install_lamindb(
     elif isinstance(extras, str):
         if extras == "":
             extras_str = ""
-        elif extras[0] != "[" and extras[-1] != "]":
+        else:
+            assert "[" not in extras and "]" not in extras
             extras_str = f"[{extras}]"
     else:
         extras_str = f"[{','.join(extras)}]"
