@@ -108,9 +108,12 @@ def install_lamindb(
         *"git clone https://github.com/laminlabs/lamindb --recursive --depth 1".split()
     )
     session.run(
-        "gitclone-b",
+        "git",
+        "clone",
+        "-b",
         branch,
-        "--depth1",
+        "--depth",
+        "1",
         "--recursive",
         "--shallow-submodules",
         "https://github.com/laminlabs/lamindb",
