@@ -94,6 +94,7 @@ def install_lamindb(
     extras: Optional[Union[Iterable[str], str]] = None,
 ):
     assert branch in {"release", "main"}
+
     if extras is None:
         extras_str = ""
     elif isinstance(extras, str):
@@ -105,9 +106,6 @@ def install_lamindb(
     else:
         extras_str = f"[{','.join(extras)}]"
 
-    session.run(
-        *"git clone https://github.com/laminlabs/lamindb --recursive --depth 1".split()
-    )
     session.run(
         "git",
         "clone",
