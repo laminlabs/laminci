@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+🚸 Publish to laminhub-public | [41](https://github.com/laminlabs/laminci/pull/41) | [falexwolf](https://github.com/falexwolf) | 2024-07-22 |
 ✨ Manage UI releases | [39](https://github.com/laminlabs/laminci/pull/39) | [falexwolf](https://github.com/falexwolf) | 2024-07-06 |
 ♻️ Add a variable for the --system flag | [38](https://github.com/laminlabs/laminci/pull/38) | [falexwolf](https://github.com/falexwolf) | 2024-06-26 |
 ✨ Add run function to nox | [36](https://github.com/laminlabs/laminci/pull/36) | [falexwolf](https://github.com/falexwolf) | 2024-04-25 | 0.13.1
