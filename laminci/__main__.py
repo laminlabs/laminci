@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import subprocess
+from pathlib import Path
 from subprocess import PIPE, run
 from typing import Union
 
@@ -121,6 +122,7 @@ def main():
         # cannot do the below as this wouldn't register immediate changes
         # from importlib.metadata import version as get_version
         # version = get_version(package_name)
+        is_laminhub = False
         if package_name is not None:
             module = importlib.import_module(package_name, package=".")
             version = module.__version__
@@ -132,6 +134,8 @@ def main():
                     f" ({previous_version})"
                 )
         else:
+            assert Path.cwd().name == "laminhub"
+            is_laminhub = True
             previous_version = "?"
             with open("ui/package.json", "r") as file:
                 version = json.load(file)["version"]
@@ -157,6 +161,12 @@ def main():
             version=version,
             release_name=f"Release {version}",
         )
+        if is_laminhub:
+            publish_github_release(
+                repo_name="laminlabs/laminhub-public",
+                version=version,
+                release_name=f"Release {version}",
+            )
 
         if args.pypi:
             command = "flit publish"
