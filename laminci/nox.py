@@ -2,7 +2,7 @@ import json
 import os
 import shlex
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterable, Literal, Optional, Union
 
 import nox
 from nox import Session
@@ -86,3 +86,55 @@ def build_docs(session: Session, strict: bool = False, strip_prefix: bool = Fals
     if strip_prefix:
         args.append("--strip-prefix")
     session.run(*args)
+
+
+def install_lamindb(
+    session: Session,
+    branch: Literal["release", "main"],
+    extras: Optional[Union[Iterable[str], str]] = None,
+):
+    assert branch in {"release", "main"}
+
+    if extras is None:
+        extras_str = ""
+    elif isinstance(extras, str):
+        if extras == "":
+            extras_str = ""
+        else:
+            assert "[" not in extras and "]" not in extras
+            extras_str = f"[{extras}]"
+    else:
+        extras_str = f"[{','.join(extras)}]"
+
+    session.run(
+        "git",
+        "clone",
+        "-b",
+        branch,
+        "--depth",
+        "1",
+        "--recursive",
+        "--shallow-submodules",
+        "https://github.com/laminlabs/lamindb",
+    )
+    if branch == "main":
+        session.run(
+            "uv",
+            "pip",
+            "install",
+            "--system",
+            "--no-deps",
+            "./lamindb/sub/lamindb-setup",
+            "./lamindb/sub/lnschema-core",
+            "./lamindb/sub/lamin-cli",
+            "./lamindb/sub/lnschema-bionty",
+            "./lamindb/sub/bionty",
+            "./lamindb/sub/wetlab",
+        )
+    session.run(
+        "uv",
+        "pip",
+        "install",
+        "--system",
+        f"./lamindb{extras_str}",
+    )
