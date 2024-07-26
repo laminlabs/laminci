@@ -83,7 +83,8 @@ def publish_github_release(
 
     try:
         cwd = Path.cwd() if cwd is None else Path(cwd)
-        assert repo_name.split("/")[1] == cwd.name
+        # account for repo_name sometimes being a package
+        assert repo_name.split("/")[1].replace("_", "-") == cwd.name
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE, cwd=cwd)
         try:
             command = [
@@ -101,7 +102,7 @@ def publish_github_release(
             if version.is_prerelease:
                 command.append("--prerelease")
 
-            print(f"\nrun: {''.join(command)}")
+            print(f"\nrun: {' '.join(command)}")
             subprocess.run(command, check=True, stdout=subprocess.PIPE, cwd=cwd)
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
