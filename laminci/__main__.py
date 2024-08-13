@@ -167,6 +167,11 @@ def main():
                 version = json.load(file)["version"]
 
         pypi = " & publish to PyPI" if args.pypi else ""
+        print(
+            "WARNING: This will run `git add -u` & commit everything into the release"
+            " commit. Please ensure all your current changes should appear in the"
+            " release commit. Typically, you only bump the version number. "
+        )
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
             return None
