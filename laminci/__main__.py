@@ -84,7 +84,9 @@ def publish_github_release(
     try:
         cwd = Path.cwd() if cwd is None else Path(cwd)
         # account for repo_name sometimes being a package
-        assert repo_name.split("/")[1].replace("_", "-") == cwd.name
+        repo_name_standardized = repo_name.split("/")[1].replace("_", "-")
+        if not repo_name_standardized == cwd.name:
+            raise ValueError(f"Don't match {repo_name_standardized} {cwd.name}")
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE, cwd=cwd)
         try:
             command = [
@@ -194,9 +196,9 @@ def main():
             body="See https://docs.lamin.ai/changelog",
         )
         if is_laminhub:
+            update_readme_version("../laminhub-public/README.md", version)
             for command in commands:
                 print(f"\nrun: {command}")
-                update_readme_version("../laminhub-public/README.md", version)
                 run(command, shell=True, cwd="../laminhub-public")
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
@@ -204,6 +206,7 @@ def main():
                 body="See https://docs.lamin.ai/changelog",
                 release_name=f"Release {version}",
                 generate_release_notes=False,
+                cwd="../laminhub-public",
             )
 
         if args.pypi:
