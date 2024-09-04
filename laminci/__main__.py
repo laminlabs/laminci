@@ -16,7 +16,7 @@ from ._env import get_package_name
 
 parser = argparse.ArgumentParser("laminci")
 subparsers = parser.add_subparsers(dest="command")
-migr = subparsers.add_parser(
+release = subparsers.add_parser(
     "release",
     help="Help with release",
     description=(
@@ -24,8 +24,9 @@ migr = subparsers.add_parser(
         "Please edit the version number in your package and prepare the release notes!"
     ),
 )
-aa = migr.add_argument
+aa = release.add_argument
 aa("--pypi", default=False, action="store_true", help="Publish to PyPI")
+aa("--changelog", default=None, help="Link to changelog entry")
 subparsers.add_parser(
     "doc-changes",
     help="Write latest changes",
@@ -157,6 +158,11 @@ def main():
                     f"Your version ({version}) should increment the previous version"
                     f" ({previous_version})"
                 )
+            if package_name == "lamindb" and args.changelog is None:
+                raise SystemExit(
+                    "Please pass a link to the changelog entry via: --changelog"
+                    " 'your-link'"
+                )
         else:
             assert Path.cwd().name == "laminhub"
             if not (Path.cwd().parent / "laminhub-public").exists():
@@ -168,12 +174,13 @@ def main():
             with open("ui/package.json", "r") as file:
                 version = json.load(file)["version"]
 
-        pypi = " & publish to PyPI" if args.pypi else ""
+        print(f"INFO: You will add this changelog link: {args.changelog}")
         print(
             "WARNING: This will run `git add -u` & commit everything into the release"
             " commit. Please ensure all your current changes should appear in the"
             " release commit. Typically, you only bump the version number. "
         )
+        pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
             return None
@@ -189,11 +196,17 @@ def main():
             print(f"\nrun: {command}")
             run(command, shell=True)
 
+        changelog_link = (
+            args.changelog
+            if args.changelog is not None
+            else "https://docs.lamin.ai/changelog"
+        )
+
         publish_github_release(
             repo_name=f"laminlabs/{package_name}",
             version=version,
             release_name=f"Release {version}",
-            body="See https://docs.lamin.ai/changelog",
+            body=f"See {changelog_link}",
         )
         if is_laminhub:
             update_readme_version("../laminhub-public/README.md", version)
@@ -203,7 +216,7 @@ def main():
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
                 version=version,
-                body="See https://docs.lamin.ai/changelog",
+                body=f"See {changelog_link}",
                 release_name=f"Release {version}",
                 generate_release_notes=False,
                 cwd="../laminhub-public",
