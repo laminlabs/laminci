@@ -6,8 +6,6 @@ from zipfile import ZipFile
 
 from lamin_utils import logger
 
-from ._env import get_package_name
-
 
 def zip_docs_dir(zip_filename: str) -> None:
     with ZipFile(zip_filename, "w") as zf:
@@ -20,14 +18,17 @@ def zip_docs_dir(zip_filename: str) -> None:
 
 
 def zip_docs():
-    package_name = get_package_name()
-    zip_filename = f"{package_name}_docs.zip"
+    repo_name = Path.cwd().name
+    assert repo_name.suffix == ""  # doesn't have a weird suffix
+    assert Path(".git/").exists()  # is git repo
+    assert repo_name.lower() == repo_name  # is all lower-case
+    zip_filename = f"{repo_name}.zip"
     zip_docs_dir(zip_filename)
-    return package_name, zip_filename
+    return repo_name, zip_filename
 
 
 def upload_docs_artifact_aws() -> None:
-    package_name, zip_filename = zip_docs()
+    repo_name, zip_filename = zip_docs()
     run(
         f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
         shell=True,
@@ -35,13 +36,13 @@ def upload_docs_artifact_aws() -> None:
 
 
 def upload_docs_artifact_lamindb() -> None:
-    package_name, zip_filename = zip_docs()
+    repo_name, zip_filename = zip_docs()
 
     import lamindb as ln
 
     ln.setup.load("testuser1/lamin-site-assets", migrate=True)
 
-    transform = ln.add(ln.Transform, name=f"CI {package_name}")
+    transform = ln.add(ln.Transform, name=f"CI {repo_name}")
     ln.track(transform=transform)
 
     file = ln.select(ln.File, key=f"docs/{zip_filename}").one_or_none()
