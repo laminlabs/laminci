@@ -29,9 +29,7 @@ doc-changes = [
     "email-validator",
     "Jinja2",
 ]
-nb-test = [
-    "pytest",
-    "pytest-cov",
+run-notebooks = [
     "nbproject_test",
 ]
 dev = [

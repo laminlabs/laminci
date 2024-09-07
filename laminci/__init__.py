@@ -15,3 +15,4 @@ from ._docs import (
 )
 from ._docs_artifacts import upload_docs_artifact
 from ._env import get_package_name, get_schema_handle
+from ._run_notebooks import run_notebooks
