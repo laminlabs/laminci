@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+♻️ Name docs artifacts by repo-name instead of package name | [42](https://github.com/laminlabs/laminci/pull/42) | [falexwolf](https://github.com/falexwolf) | 2024-09-07 |
 ✨ Add install_lamindb to install lamindb from github | [40](https://github.com/laminlabs/laminci/pull/40) | [Koncopd](https://github.com/Koncopd) | 2024-07-26 |
 🚸 Publish to laminhub-public | [41](https://github.com/laminlabs/laminci/pull/41) | [falexwolf](https://github.com/falexwolf) | 2024-07-22 |
 ✨ Manage UI releases | [39](https://github.com/laminlabs/laminci/pull/39) | [falexwolf](https://github.com/falexwolf) | 2024-07-06 |
