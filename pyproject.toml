@@ -15,7 +15,6 @@ dependencies = [
     "pyyaml",
     "toml",
     "boto3",
-    "pytest",
 ]
 
 [project.urls]
@@ -29,6 +28,10 @@ doc-changes = [
     "httpx>=0.15.5,<0.26.0",
     "email-validator",
     "Jinja2",
+]
+nb-test = [
+    "pytest",
+    "nbproject_test",
 ]
 dev = [
     "pre-commit",
