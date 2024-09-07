@@ -4,18 +4,18 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "laminci"
-authors = [{name = "Lamin Labs", email = "laminlabs@gmail.com"}]
+authors = [{name = "Lamin Labs", email = "open-source@lamin.ai"}]
 readme = "README.md"
 dynamic = ["version", "description"]
 dependencies = [
-    # this CANNOT depend on lamindb as long as we use it
-    # as an upstream dependency within lndb!
+    # this CANNOT depend on lamindb
     "uv",
     "nox",
     "lamin_utils",
     "pyyaml",
     "toml",
     "boto3",
+    "pytest",
 ]
 
 [project.urls]
