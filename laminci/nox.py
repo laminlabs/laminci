@@ -66,6 +66,7 @@ def run_pytest(session: Session, coverage: bool = True, env: Optional[Dict] = No
     session.run(
         "pytest",
         "-s",
+        "tests/",
         *coverage_args,
         env=env,
     )
