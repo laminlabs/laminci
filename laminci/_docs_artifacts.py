@@ -19,7 +19,7 @@ def zip_docs_dir(zip_filename: str) -> None:
 
 def zip_docs():
     repo_name = Path.cwd().name
-    assert repo_name.suffix == ""  # doesn't have a weird suffix
+    assert "." not in repo_name  # doesn't have a weird suffix
     assert Path(".git/").exists()  # is git repo
     assert repo_name.lower() == repo_name  # is all lower-case
     zip_filename = f"{repo_name}.zip"
