@@ -163,6 +163,10 @@ def main():
                     "Please pass a link to the changelog entry via: --changelog"
                     " 'your-link'"
                 )
+            if Path("./LICENSE").exists() and args.pypi is None:
+                raise SystemExit(
+                    "Did you forgot to publish to PyPI? A LICENSE file exists."
+                )
         else:
             assert Path.cwd().name == "laminhub"
             if not (Path.cwd().parent / "laminhub-public").exists():
