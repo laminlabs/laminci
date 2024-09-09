@@ -95,8 +95,6 @@ def install_lamindb(
     branch: Literal["release", "main"],
     extras: Optional[Union[Iterable[str], str]] = None,
 ):
-    assert branch in {"release", "main"}
-
     if extras is None:
         extras_str = ""
     elif isinstance(extras, str):
