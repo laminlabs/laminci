@@ -13,7 +13,7 @@ def zip_docs_dir(zip_filename: str) -> None:
         for f in Path("./docs").glob("**/*"):
             if ".ipynb_checkpoints" in str(f):
                 continue
-            if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg"}:
+            if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg", ".py"}:
                 zf.write(f, f.relative_to("./docs"))  # add at root level
 
 
