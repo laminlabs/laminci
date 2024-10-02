@@ -85,9 +85,9 @@ def publish_github_release(
     try:
         cwd = Path.cwd() if cwd is None else Path(cwd)
         # account for repo_name sometimes being a package
-        repo_name_standardized = repo_name.split("/")[1].replace("_", "-")
+        repo_name_standardized = repo_name.split("/")[1]
         if not repo_name_standardized == cwd.name:
-            raise ValueError(f"Don't match {repo_name_standardized} {cwd.name}")
+            raise ValueError(f"Don't match: {repo_name_standardized} != {cwd.name}")
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE, cwd=cwd)
         try:
             command = [
@@ -168,8 +168,10 @@ def main():
                     "ERROR: Did you forget to add the `--pypi` flag? A LICENSE file"
                     " exists and I assume this is an open-source package."
                 )
+            repo_name = package_name.replace("_", "-")
         else:
             assert Path.cwd().name == "laminhub"
+            repo_name = "laminhub"
             if not (Path.cwd().parent / "laminhub-public").exists():
                 raise ValueError(
                     "Please clone the laminhub-public repository into the same parent"
@@ -208,7 +210,7 @@ def main():
         )
 
         publish_github_release(
-            repo_name=f"laminlabs/{package_name}",
+            repo_name=f"laminlabs/{repo_name}",
             version=version,
             release_name=f"Release {version}",
             body=f"See {changelog_link}",
