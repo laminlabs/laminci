@@ -164,7 +164,9 @@ def _prepare_package_name(
 
 def release(*, changelog_link: str | None, pypi: bool, no_release: bool):
     """Create a release.
-    1. Get the version number from the package (pyproject.toml or lamin-project.yaml or package.json).
+
+    1. Get the version number from the package
+       (pyproject.toml or lamin-project.yaml or package.json).
     2. Create a commit tagged with the version number.
     3. Push the commit and tags to the remote.
     4. Create a release on GitHub.
@@ -173,9 +175,9 @@ def release(*, changelog_link: str | None, pypi: bool, no_release: bool):
     Args:
         changelog_link: _description_
         pypi: Update to PyPI using flit.
-        no_release: Do not create a release. This is used when you already created a release to get the changelog.
+        no_release: Do not create a release. This is used when you already created
+        a release to get the changelog.
     """
-
     changelog_link = changelog_link or "https://docs.lamin.ai/changelog"
     previous_version = _get_last_version_from_tags()
     repo_name, version = _prepare_package_name(
@@ -191,7 +193,8 @@ def release(*, changelog_link: str | None, pypi: bool, no_release: bool):
     )
     if repo_name == "laminhub":
         print(
-            "INFO: This will also update the version in laminhub-public/README.md and create a release there."
+            "INFO: This will also update the version in laminhub-public/README.md "
+            "and create a release there."
         )
 
     _pypi_msg = " & publish to PyPI" if pypi else ""

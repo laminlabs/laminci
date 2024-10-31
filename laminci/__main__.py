@@ -20,7 +20,8 @@ aa("--changelog", default=None, help="Link to changelog entry")
 aa(
     "--no-release",
     default=False,
-    help="Do not create a release. This is used when you already created a release to get the changelog.",
+    help="Do not create a release. This is used when you already created"
+    "a release to get the changelog.",
 )
 subparsers.add_parser(
     "doc-changes",
