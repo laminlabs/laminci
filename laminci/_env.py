@@ -22,10 +22,12 @@ def get_package_name(root_directory: Optional[Path] = None) -> Optional[str]:
             return config["package_name"]
         else:
             return None
+
     elif Path("pyproject.toml").exists():
         with open("pyproject.toml") as f:
             d = toml.load(f)
         return d["project"]["name"].replace("-", "_")
+
     else:
         return None
 

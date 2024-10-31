@@ -209,8 +209,7 @@ def generate_content(
         new_release_content = updated_content
 
     new_content = (
-        f"{pre_header_content}\n\n{new_release_content}\n\n{post_release_content}"
-        .strip()
+        f"{pre_header_content}\n\n{new_release_content}\n\n{post_release_content}".strip()  # noqa: E501
         + "\n"
     )
     return new_content
