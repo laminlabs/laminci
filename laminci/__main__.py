@@ -108,7 +108,8 @@ def publish_github_release(
             print(f"\nrun: {' '.join(command)}")
             subprocess.run(command, check=True, stdout=subprocess.PIPE, cwd=cwd)
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
+            if input("GitHub release error. Continue? ") != "y":
+                raise e
     except (subprocess.CalledProcessError, FileNotFoundError):
         try:
             from github import Github, GithubException
@@ -195,6 +196,7 @@ def main():
         commands = [
             "git add -u",
             f"git commit -m 'Release {version}'",
+            "git pull",
             "git push",
             f"git tag {version}",
             f"git push origin {version}",
@@ -208,7 +210,7 @@ def main():
             if args.changelog is not None
             else "https://docs.lamin.ai/changelog"
         )
-
+        # breakpoint()
         publish_github_release(
             repo_name=f"laminlabs/{repo_name}",
             version=version,
