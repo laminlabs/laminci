@@ -15,7 +15,7 @@ from ._env import get_package_name
 
 parser = argparse.ArgumentParser("laminci")
 subparsers = parser.add_subparsers(dest="command")
-migr = subparsers.add_parser(
+release = subparsers.add_parser(
     "release",
     help="Help with release",
     description=(
@@ -23,8 +23,9 @@ migr = subparsers.add_parser(
         "Please edit the version number in your package and prepare the release notes!"
     ),
 )
-aa = migr.add_argument
+aa = release.add_argument
 aa("--pypi", default=False, action="store_true", help="Publish to PyPI")
+aa("--changelog", default=None, help="Link to changelog entry")
 subparsers.add_parser(
     "doc-changes",
     help="Write latest changes",
@@ -62,11 +63,13 @@ def validate_version(version_str: str):
         if not len(version.release) == 2:
             raise SystemExit(
                 f"Pre-releases should be of form 0.42a1 or 0.42rc1, yours is {version}"
-            )
+            ) from None
         else:
             return None
     if len(version.release) != 3:
-        raise SystemExit(f"Version should be of form 0.1.2, yours is {version}")
+        raise SystemExit(
+            f"Version should be of form 0.1.2, yours is {version}"
+        ) from None
 
 
 def publish_github_release(
@@ -83,7 +86,9 @@ def publish_github_release(
     try:
         cwd = Path.cwd() if cwd is None else Path(cwd)
         # account for repo_name sometimes being a package
-        assert repo_name.split("/")[1].replace("_", "-") == cwd.name  # noqa: S101
+        repo_name_standardized = repo_name.split("/")[1]
+        if not repo_name_standardized == cwd.name:
+            raise ValueError(f"Don't match: {repo_name_standardized} != {cwd.name}")
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE, cwd=cwd)
         try:
             command = [
@@ -104,7 +109,8 @@ def publish_github_release(
             print(f"\nrun: {' '.join(command)}")
             subprocess.run(command, check=True, stdout=subprocess.PIPE, cwd=cwd)
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(f"Error creating GitHub release using `gh`: {e}") from None
+            if input("GitHub release error. Continue? ") != "y":
+                raise e
     except (subprocess.CalledProcessError, FileNotFoundError):
         try:
             from github import Github, GithubException
@@ -155,9 +161,21 @@ def main():
                 raise SystemExit(
                     f"Your version ({version}) should increment the previous version"
                     f" ({previous_version})"
+                )
+            if package_name == "lamindb" and args.changelog is None:
+                raise SystemExit(
+                    "Please pass a link to the changelog entry via: --changelog"
+                    " 'your-link'"
                 ) from None
+            if Path("./LICENSE").exists() and not args.pypi:
+                raise SystemExit(
+                    "ERROR: Did you forget to add the `--pypi` flag? A LICENSE file"
+                    " exists and I assume this is an open-source package."
+                ) from None
+            repo_name = package_name.replace("_", "-")
         else:
             assert Path.cwd().name == "laminhub"  # noqa: S101
+            repo_name = "laminhub"
             if not (Path.cwd().parent / "laminhub-public").exists():
                 raise ValueError(
                     "Please clone the laminhub-public repository into the same parent"
@@ -167,6 +185,12 @@ def main():
             with open("ui/package.json") as file:
                 version = json.load(file)["version"]
 
+        print(f"INFO: You will add this changelog link: {args.changelog}")
+        print(
+            "WARNING: This will run `git add -u` & commit everything into the release"
+            " commit. Please ensure all your current changes should appear in the"
+            " release commit. Typically, you only bump the version number. "
+        )
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
         if response != "y":
@@ -175,6 +199,7 @@ def main():
         commands = [
             "git add -u",
             f"git commit -m 'Release {version}'",
+            "git pull",
             "git push",
             f"git tag {version}",
             f"git push origin {version}",
@@ -183,23 +208,30 @@ def main():
             print(f"\nrun: {command}")
             run(command, shell=True)  # noqa: S602
 
+        changelog_link = (
+            args.changelog
+            if args.changelog is not None
+            else "https://docs.lamin.ai/changelog"
+        )
+        # breakpoint()
         publish_github_release(
-            repo_name=f"laminlabs/{package_name}",
+            repo_name=f"laminlabs/{repo_name}",
             version=version,
             release_name=f"Release {version}",
-            body="See https://docs.lamin.ai/changelog",
+            body=f"See {changelog_link}",
         )
         if is_laminhub:
+            update_readme_version("../laminhub-public/README.md", version)
             for command in commands:
                 print(f"\nrun: {command}")
-                update_readme_version("../laminhub-public/README.md", version)
                 run(command, shell=True, cwd="../laminhub-public")  # noqa: S602
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
                 version=version,
-                body="See https://docs.lamin.ai/changelog",
+                body=f"See {changelog_link}",
                 release_name=f"Release {version}",
                 generate_release_notes=False,
+                cwd="../laminhub-public",
             )
 
         if args.pypi:

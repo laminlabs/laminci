@@ -11,6 +11,7 @@ from nox import Session
 from ._env import get_package_name
 
 SYSTEM = " --system " if os.getenv("CI") else ""
+nox.options.default_venv_backend = "none"
 
 
 def _login_lamin_user(user_email: str, env: Optional[dict[str, str]] = None):
@@ -66,6 +67,7 @@ def run_pytest(session: Session, coverage: bool = True, env: Optional[dict] = No
     session.run(
         "pytest",
         "-s",
+        "tests/",
         *coverage_args,
         env=env,
     )
@@ -93,8 +95,6 @@ def install_lamindb(
     branch: Literal["release", "main"],
     extras: Optional[Union[Iterable[str], str]] = None,
 ):
-    assert branch in {"release", "main"}  # noqa: S101
-
     if extras is None:
         extras_str = ""
     elif isinstance(extras, str):
