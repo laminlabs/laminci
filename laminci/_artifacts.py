@@ -28,10 +28,7 @@ def zip_docs():
 
 def upload_docs_artifact_aws() -> None:
     package_name, zip_filename = zip_docs()
-    run(
-        f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
-        shell=True,
-    )
+    run(f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}")
 
 
 def upload_docs_artifact_lamindb() -> None:
@@ -72,5 +69,5 @@ def upload_docs_artifact(aws: bool = False) -> None:
             upload_docs_artifact_lamindb()
 
         except ImportError:
-            warnings.warn("Fall back to AWS")
+            warnings.warn("Fall back to AWS", stacklevel=2)
             upload_docs_artifact_aws()

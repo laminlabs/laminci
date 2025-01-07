@@ -8,7 +8,6 @@ import re
 import subprocess
 from pathlib import Path
 from subprocess import PIPE, run
-from typing import Union
 
 from packaging.version import Version, parse
 
@@ -34,7 +33,7 @@ subparsers.add_parser(
 
 def update_readme_version(file_path, new_version):
     # Read the content of the file
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         content = file.read()
 
     # Use regex to find and replace the version
@@ -48,7 +47,7 @@ def update_readme_version(file_path, new_version):
 
 
 def get_last_version_from_tags():
-    proc = run(["git", "tag"], universal_newlines=True, stdout=PIPE)
+    proc = run(["git", "tag"], text=True, stdout=PIPE)
     tags = proc.stdout.splitlines()
     newest = "0.0.0"
     for tag in tags:
@@ -72,7 +71,7 @@ def validate_version(version_str: str):
 
 def publish_github_release(
     repo_name: str,
-    version: Union[str, Version],
+    version: str | Version,
     release_name: str,
     body: str = "",
     draft: bool = False,
@@ -84,7 +83,7 @@ def publish_github_release(
     try:
         cwd = Path.cwd() if cwd is None else Path(cwd)
         # account for repo_name sometimes being a package
-        assert repo_name.split("/")[1].replace("_", "-") == cwd.name
+        assert repo_name.split("/")[1].replace("_", "-") == cwd.name  # noqa: S101
         subprocess.run(["gh", "--version"], check=True, stdout=subprocess.PIPE, cwd=cwd)
         try:
             command = [
@@ -105,7 +104,7 @@ def publish_github_release(
             print(f"\nrun: {' '.join(command)}")
             subprocess.run(command, check=True, stdout=subprocess.PIPE, cwd=cwd)
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(f"Error creating GitHub release using `gh`: {e}")
+            raise SystemExit(f"Error creating GitHub release using `gh`: {e}") from None
     except (subprocess.CalledProcessError, FileNotFoundError):
         try:
             from github import Github, GithubException
@@ -128,12 +127,14 @@ def publish_github_release(
                     generate_release_notes=generate_release_notes,
                 )
             except GithubException as e:
-                raise SystemExit(f"Error creating GitHub release using `PyGithub`: {e}")
+                raise SystemExit(
+                    f"Error creating GitHub release using `PyGithub`: {e}"
+                ) from None
         except ImportError:
             raise SystemExit(
                 "Neither the Github CLI ('gh') nor PyGithub were accessible.\n"
                 "Please install one of the two."
-            )
+            ) from None
 
 
 def main():
@@ -154,16 +155,16 @@ def main():
                 raise SystemExit(
                     f"Your version ({version}) should increment the previous version"
                     f" ({previous_version})"
-                )
+                ) from None
         else:
-            assert Path.cwd().name == "laminhub"
+            assert Path.cwd().name == "laminhub"  # noqa: S101
             if not (Path.cwd().parent / "laminhub-public").exists():
                 raise ValueError(
                     "Please clone the laminhub-public repository into the same parent"
                     " directory as laminhub."
                 )
             is_laminhub = True
-            with open("ui/package.json", "r") as file:
+            with open("ui/package.json") as file:
                 version = json.load(file)["version"]
 
         pypi = " & publish to PyPI" if args.pypi else ""
@@ -180,7 +181,7 @@ def main():
         ]
         for command in commands:
             print(f"\nrun: {command}")
-            run(command, shell=True)
+            run(command, shell=True)  # noqa: S602
 
         publish_github_release(
             repo_name=f"laminlabs/{package_name}",
@@ -192,7 +193,7 @@ def main():
             for command in commands:
                 print(f"\nrun: {command}")
                 update_readme_version("../laminhub-public/README.md", version)
-                run(command, shell=True, cwd="../laminhub-public")
+                run(command, shell=True, cwd="../laminhub-public")  # noqa: S602
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
                 version=version,
@@ -204,7 +205,7 @@ def main():
         if args.pypi:
             command = "flit publish"
             print(f"\nrun: {command}")
-            run(command, shell=True)
+            run(command, shell=True)  # noqa: S602
     elif args.command == "doc-changes":
         from ._doc_changes import doc_changes
 
