@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import nox
 from nox.registry import _REGISTRY, Any, Callable, F, Func, Python, functools
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def session_decorator(

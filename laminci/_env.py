@@ -8,7 +8,7 @@ import yaml  # type: ignore
 def load_project_yaml(root_directory: Optional[Path] = None) -> dict:
     yaml_file = Path("lamin-project.yaml")
     if root_directory is None:
-        root_directory = Path(".")
+        root_directory = Path()
     yaml_file = root_directory / yaml_file
     with yaml_file.open() as f:
         d = yaml.safe_load(f)

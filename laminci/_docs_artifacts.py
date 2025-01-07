@@ -19,20 +19,25 @@ def zip_docs_dir(zip_filename: str) -> None:
 
 def zip_docs():
     repo_name = Path.cwd().name
-    assert "." not in repo_name  # doesn't have a weird suffix
-    assert Path(".git/").exists()  # is git repo
-    assert repo_name.lower() == repo_name  # is all lower-case
+    assert "." not in repo_name  # doesn't have a weird suffix  # noqa: S101
+    assert Path(".git/").exists()  # is git repo  # noqa: S101
+    assert repo_name.lower() == repo_name  # is all lower-case  # noqa: S101
     zip_filename = f"{repo_name}.zip"
     zip_docs_dir(zip_filename)
     return repo_name, zip_filename
 
 
+# Ruff seems to ignore any noqa comments in the following and we therefore disable it briefly
+# ruff: noqa
 def upload_docs_artifact_aws() -> None:
     repo_name, zip_filename = zip_docs()
     run(
         f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
         shell=True,
     )
+
+
+# ruff: enable
 
 
 def upload_docs_artifact_lamindb() -> None:
@@ -73,5 +78,5 @@ def upload_docs_artifact(aws: bool = False) -> None:
             upload_docs_artifact_lamindb()
 
         except ImportError:
-            warnings.warn("Fall back to AWS")
+            warnings.warn("Fall back to AWS", stacklevel=2)
             upload_docs_artifact_aws()

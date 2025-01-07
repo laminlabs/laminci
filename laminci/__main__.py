@@ -8,7 +8,6 @@ import re
 import subprocess
 from pathlib import Path
 from subprocess import PIPE, run
-from typing import Union
 
 from packaging.version import Version, parse
 
@@ -35,7 +34,7 @@ subparsers.add_parser(
 
 def update_readme_version(file_path, new_version):
     # Read the content of the file
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         content = file.read()
 
     # Use regex to find and replace the version
@@ -49,7 +48,7 @@ def update_readme_version(file_path, new_version):
 
 
 def get_last_version_from_tags():
-    proc = run(["git", "tag"], universal_newlines=True, stdout=PIPE)
+    proc = run(["git", "tag"], text=True, stdout=PIPE)
     tags = proc.stdout.splitlines()
     newest = "0.0.0"
     for tag in tags:
@@ -64,16 +63,18 @@ def validate_version(version_str: str):
         if not len(version.release) == 2:
             raise SystemExit(
                 f"Pre-releases should be of form 0.42a1 or 0.42rc1, yours is {version}"
-            )
+            ) from None
         else:
             return None
     if len(version.release) != 3:
-        raise SystemExit(f"Version should be of form 0.1.2, yours is {version}")
+        raise SystemExit(
+            f"Version should be of form 0.1.2, yours is {version}"
+        ) from None
 
 
 def publish_github_release(
     repo_name: str,
-    version: Union[str, Version],
+    version: str | Version,
     release_name: str,
     body: str = "",
     draft: bool = False,
@@ -132,12 +133,14 @@ def publish_github_release(
                     generate_release_notes=generate_release_notes,
                 )
             except GithubException as e:
-                raise SystemExit(f"Error creating GitHub release using `PyGithub`: {e}")
+                raise SystemExit(
+                    f"Error creating GitHub release using `PyGithub`: {e}"
+                ) from None
         except ImportError:
             raise SystemExit(
                 "Neither the Github CLI ('gh') nor PyGithub were accessible.\n"
                 "Please install one of the two."
-            )
+            ) from None
 
 
 def main():
@@ -163,15 +166,15 @@ def main():
                 raise SystemExit(
                     "Please pass a link to the changelog entry via: --changelog"
                     " 'your-link'"
-                )
+                ) from None
             if Path("./LICENSE").exists() and not args.pypi:
                 raise SystemExit(
                     "ERROR: Did you forget to add the `--pypi` flag? A LICENSE file"
                     " exists and I assume this is an open-source package."
-                )
+                ) from None
             repo_name = package_name.replace("_", "-")
         else:
-            assert Path.cwd().name == "laminhub"
+            assert Path.cwd().name == "laminhub"  # noqa: S101
             repo_name = "laminhub"
             if not (Path.cwd().parent / "laminhub-public").exists():
                 raise ValueError(
@@ -179,7 +182,7 @@ def main():
                     " directory as laminhub."
                 )
             is_laminhub = True
-            with open("ui/package.json", "r") as file:
+            with open("ui/package.json") as file:
                 version = json.load(file)["version"]
 
         print(f"INFO: You will add this changelog link: {args.changelog}")
@@ -203,7 +206,7 @@ def main():
         ]
         for command in commands:
             print(f"\nrun: {command}")
-            run(command, shell=True)
+            run(command, shell=True)  # noqa: S602
 
         changelog_link = (
             args.changelog
@@ -221,7 +224,7 @@ def main():
             update_readme_version("../laminhub-public/README.md", version)
             for command in commands:
                 print(f"\nrun: {command}")
-                run(command, shell=True, cwd="../laminhub-public")
+                run(command, shell=True, cwd="../laminhub-public")  # noqa: S602
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
                 version=version,
@@ -234,7 +237,7 @@ def main():
         if args.pypi:
             command = "flit publish"
             print(f"\nrun: {command}")
-            run(command, shell=True)
+            run(command, shell=True)  # noqa: S602
     elif args.command == "doc-changes":
         from ._doc_changes import doc_changes
 

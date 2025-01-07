@@ -33,12 +33,15 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from github import Github
-from github.PullRequest import PullRequest
 from jinja2 import Template
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings
+
+if TYPE_CHECKING:
+    from github.PullRequest import PullRequest
 
 
 class Section(BaseModel):
@@ -209,8 +212,7 @@ def generate_content(
         new_release_content = updated_content
 
     new_content = (
-        f"{pre_header_content}\n\n{new_release_content}\n\n{post_release_content}"
-        .strip()
+        f"{pre_header_content}\n\n{new_release_content}\n\n{post_release_content}".strip()
         + "\n"
     )
     return new_content
