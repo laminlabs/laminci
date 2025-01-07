@@ -125,7 +125,6 @@ def install_lamindb(
             "--system",
             "--no-deps",
             "./lamindb/sub/lamindb-setup",
-            "./lamindb/sub/lnschema-core",
             "./lamindb/sub/lamin-cli",
             "./lamindb/sub/bionty",
             "./lamindb/sub/wetlab",
