@@ -27,11 +27,17 @@ def zip_docs():
     return repo_name, zip_filename
 
 
+# Ruff seems to ignore any noqa comments in the following and we therefore disable it briefly
+# ruff: noqa
 def upload_docs_artifact_aws() -> None:
     repo_name, zip_filename = zip_docs()
     run(
         f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
+        shell=True,
     )
+
+
+# ruff: enable
 
 
 def upload_docs_artifact_lamindb() -> None:
