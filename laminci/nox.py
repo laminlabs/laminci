@@ -8,6 +8,7 @@ from typing import Literal, Optional, Union
 import nox
 from nox import Session
 
+from . import _nox_logger  # noqa the import statement silences the logger
 from ._env import get_package_name
 
 SYSTEM = " --system " if os.getenv("CI") else ""
