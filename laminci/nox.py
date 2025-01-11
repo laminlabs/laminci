@@ -118,7 +118,7 @@ def install_lamindb(
         "--shallow-submodules",
         "https://github.com/laminlabs/lamindb",
     )
-    if branch == "main":
+    if branch != "release":
         session.run(
             "uv",
             "pip",
