@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+No longer install ourprojects  | [47](https://github.com/laminlabs/laminci/pull/47) | [Zethson](https://github.com/Zethson) | 2025-01-13 |
 🐛 Install consistent state | [46](https://github.com/laminlabs/laminci/pull/46) | [falexwolf](https://github.com/falexwolf) | 2025-01-11 |
 🎨 Remove lnschema-core installation | [44](https://github.com/laminlabs/laminci/pull/44) | [Zethson](https://github.com/Zethson) | 2025-01-07 |
 ♻️ Name docs artifacts by repo-name instead of package name | [42](https://github.com/laminlabs/laminci/pull/42) | [falexwolf](https://github.com/falexwolf) | 2024-09-07 |
