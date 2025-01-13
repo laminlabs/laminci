@@ -128,7 +128,7 @@ def install_lamindb(
             "./lamindb/sub/lamindb-setup",
             "./lamindb/sub/lamin-cli",
             "./lamindb/sub/bionty",
-            "./lamindb/sub/wetlab"
+            "./lamindb/sub/wetlab",
         )
     session.run(
         "uv",
