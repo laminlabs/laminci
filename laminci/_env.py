@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-import toml  # type: ignore
+import tomlkit  # type: ignore
 import yaml  # type: ignore
 
 
@@ -24,7 +24,7 @@ def get_package_name(root_directory: Optional[Path] = None) -> Optional[str]:
             return None
     elif Path("pyproject.toml").exists():
         with open("pyproject.toml") as f:
-            d = toml.load(f)
+            d = tomlkit.load(f)
         return d["project"]["name"].replace("-", "_")
     else:
         return None
