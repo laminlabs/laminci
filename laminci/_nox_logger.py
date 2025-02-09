@@ -4,11 +4,11 @@ import logging
 from collections.abc import Sequence
 
 import nox
-from nox.registry import _REGISTRY, Any, Callable, F, Func, Python, functools
+from nox.registry import _REGISTRY, Any, Callable, RawFunc, Func, Python, functools
 
 
 def session_decorator(
-    func: F | None = None,
+    func: RawFunc | None = None,
     python: Python | None = None,
     py: Python | None = None,
     reuse_venv: bool | None = None,
@@ -16,7 +16,7 @@ def session_decorator(
     venv_backend: Any | None = None,
     venv_params: Any | None = None,
     tags: Sequence[str] | None = None,
-) -> F | Callable[[F], F]:
+) -> RawFunc | Callable[[RawFunc], RawFunc]:
     """Designate the decorated function as a session."""
     # If `func` is provided, then this is the decorator call with the function
     # being sent as part of the Python syntax (`@nox.session`).
