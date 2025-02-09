@@ -4,7 +4,7 @@ import logging
 from collections.abc import Sequence
 
 import nox
-from nox.registry import _REGISTRY, Any, Callable, RawFunc, Func, Python, functools
+from nox.registry import _REGISTRY, Any, Callable, Func, Python, RawFunc, functools
 
 
 def session_decorator(
