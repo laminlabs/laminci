@@ -15,6 +15,7 @@ dependencies = [
     "pyyaml",
     "boto3",
     "tomlkit",
+    "click"
 ]
 
 [project.urls]
