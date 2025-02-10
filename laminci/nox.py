@@ -1,19 +1,21 @@
 import json
 import os
 import shlex
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 import nox
 from nox import Session
 
-from . import _nox_logger  # noqa, the import silences the logger
+from . import _nox_logger  # noqa the import statement silences the logger
 from ._env import get_package_name
 
 SYSTEM = " --system " if os.getenv("CI") else ""
+nox.options.default_venv_backend = "none"
 
 
-def _login_lamin_user(user_email: str, env: Optional[Dict[str, str]] = None):
+def _login_lamin_user(user_email: str, env: Optional[dict[str, str]] = None):
     import boto3
     import lamindb_setup as ln_setup
 
@@ -36,16 +38,16 @@ def _login_lamin_user(user_email: str, env: Optional[Dict[str, str]] = None):
         raise NotImplementedError
 
 
-def login_testuser1(session: Session, env: Optional[Dict[str, str]] = None):
+def login_testuser1(session: Session, env: Optional[dict[str, str]] = None):
     _login_lamin_user("testuser1@lamin.ai", env=env)
 
 
-def login_testuser2(session: Session, env: Optional[Dict[str, str]] = None):
+def login_testuser2(session: Session, env: Optional[dict[str, str]] = None):
     _login_lamin_user("testuser2@lamin.ai", env=env)
 
 
 def run(session: Session, s: str, **kwargs):
-    assert (args := shlex.split(s))
+    assert (args := shlex.split(s))  # noqa: S101
     return session.run(*args, **kwargs)
 
 
@@ -58,7 +60,7 @@ def run_pre_commit(session: Session):
     session.run("pre-commit", "run", "--all-files")
 
 
-def run_pytest(session: Session, coverage: bool = True, env: Optional[Dict] = None):
+def run_pytest(session: Session, coverage: bool = True, env: Optional[dict] = None):
     package_name = get_package_name()
     coverage_args = (
         f"--cov={package_name} --cov-append --cov-report=term-missing".split()
@@ -66,6 +68,7 @@ def run_pytest(session: Session, coverage: bool = True, env: Optional[Dict] = No
     session.run(
         "pytest",
         "-s",
+        "tests/",
         *coverage_args,
         env=env,
     )
@@ -93,15 +96,13 @@ def install_lamindb(
     branch: Literal["release", "main"],
     extras: Optional[Union[Iterable[str], str]] = None,
 ):
-    assert branch in {"release", "main"}
-
     if extras is None:
         extras_str = ""
     elif isinstance(extras, str):
         if extras == "":
             extras_str = ""
         else:
-            assert "[" not in extras and "]" not in extras
+            assert "[" not in extras and "]" not in extras  # noqa: S101
             extras_str = f"[{extras}]"
     else:
         extras_str = f"[{','.join(extras)}]"
@@ -117,7 +118,7 @@ def install_lamindb(
         "--shallow-submodules",
         "https://github.com/laminlabs/lamindb",
     )
-    if branch == "main":
+    if branch != "release":
         session.run(
             "uv",
             "pip",
@@ -125,7 +126,6 @@ def install_lamindb(
             "--system",
             "--no-deps",
             "./lamindb/sub/lamindb-setup",
-            "./lamindb/sub/lnschema-core",
             "./lamindb/sub/lamin-cli",
             "./lamindb/sub/bionty",
             "./lamindb/sub/wetlab",

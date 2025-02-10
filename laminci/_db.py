@@ -25,9 +25,9 @@ def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = Non
         version = ":{version}"
     else:
         version = ""
-    process = run(
+    process = run(  # noqa: S602
         f"docker run --name {name} -e POSTGRES_PASSWORD=pwd"
-        f" -e POSTGRES_DB={name} -d -p 5432:5432 postgres{version}",  # noqa
+        f" -e POSTGRES_DB={name} -d -p 5432:5432 postgres{version}",
         shell=True,
     )
     if process.returncode == 0:

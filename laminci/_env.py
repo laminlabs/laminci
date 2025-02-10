@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import Optional
 
-import toml  # type: ignore
+import tomlkit  # type: ignore
 import yaml  # type: ignore
 
 
 def load_project_yaml(root_directory: Optional[Path] = None) -> dict:
     yaml_file = Path("lamin-project.yaml")
     if root_directory is None:
-        root_directory = Path(".")
+        root_directory = Path()
     yaml_file = root_directory / yaml_file
     with yaml_file.open() as f:
         d = yaml.safe_load(f)
@@ -24,7 +24,7 @@ def get_package_name(root_directory: Optional[Path] = None) -> Optional[str]:
             return None
     elif Path("pyproject.toml").exists():
         with open("pyproject.toml") as f:
-            d = toml.load(f)
+            d = tomlkit.load(f)
         return d["project"]["name"].replace("-", "_")
     else:
         return None
