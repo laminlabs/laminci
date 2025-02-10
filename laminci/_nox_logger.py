@@ -4,10 +4,12 @@ import logging
 from typing import TYPE_CHECKING
 
 import nox
-from nox.registry import _REGISTRY, Any, Callable, Func, Python, RawFunc, functools
+from nox.registry import _REGISTRY, Any, Callable, Func, RawFunc, functools
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from nox._typing import Python
 
 
 def session_decorator(
