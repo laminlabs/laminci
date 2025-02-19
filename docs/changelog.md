@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+♻️ Safer release mgmt | [49](https://github.com/laminlabs/laminci/pull/49) | [falexwolf](https://github.com/falexwolf) | 2025-02-19 |
 🐛 Enforce compatibility with new nox release | [48](https://github.com/laminlabs/laminci/pull/48) | [fredericenard](https://github.com/fredericenard) | 2025-02-10 |
 No longer install ourprojects  | [47](https://github.com/laminlabs/laminci/pull/47) | [Zethson](https://github.com/Zethson) | 2025-01-13 |
 🐛 Install consistent state | [46](https://github.com/laminlabs/laminci/pull/46) | [falexwolf](https://github.com/falexwolf) | 2025-01-11 |
