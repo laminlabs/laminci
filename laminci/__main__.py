@@ -197,9 +197,9 @@ def main():
             return None
 
         commands = [
-            "git add -u",
+            # please don't add git add -u here to not accidentally commit other files
             f"git commit -m 'Release {version}'",
-            "git pull",
+            # please don't add an auto-pull here to not conflate when the release was made
             "git push",
             f"git tag {version}",
             f"git push origin {version}",
