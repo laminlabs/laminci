@@ -187,9 +187,8 @@ def main():
 
         print(f"INFO: You will add this changelog link: {args.changelog}")
         print(
-            "WARNING: This will run `git add -u` & commit everything into the release"
-            " commit. Please ensure all your current changes should appear in the"
-            " release commit. Typically, you only bump the version number. "
+            "WARNING: This assumes you staged your bumped version tag with `git add myproject/__init__.py`"
+            " for laminci to commit it."
         )
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
