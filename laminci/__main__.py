@@ -143,6 +143,40 @@ def publish_github_release(
             ) from None
 
 
+def check_only_version_bump_staged(package_name: str):
+    # Check if __init__.py is staged in git and no other files are staged
+    init_file_path = f"{package_name}/__init__.py"
+
+    # Get list of staged files
+    import subprocess
+
+    staged_files = (
+        subprocess.check_output(["git", "diff", "--name-only", "--cached"], text=True)
+        .strip()
+        .split("\n")
+    )
+
+    # Check if staged_files is empty (no staged files)
+    if not staged_files or staged_files == [""]:
+        raise ValueError(
+            f"{init_file_path} is not staged in git. Please stage it before releasing."
+        )
+
+    # Check if __init__.py is among staged files
+    if init_file_path not in staged_files:
+        raise ValueError(
+            f"{init_file_path} is not staged in git. Please stage it before releasing."
+        )
+
+    # Check if any additional files are staged
+    if len(staged_files) > 1:
+        other_files = [f for f in staged_files if f != init_file_path]
+        raise ValueError(
+            f"Additional files are staged for commit: {', '.join(other_files)}. "
+            f"Please unstage these files before releasing."
+        )
+
+
 def main():
     args = parser.parse_args()
 
@@ -195,6 +229,10 @@ def main():
         if response != "y":
             return None
 
+        # add all current files, assuming a clean directory
+        run("git add -u", shell=True)  # noqa: S602
+        # check that only __init__.py is staged to avoid accidental commits
+        check_only_version_bump_staged(package_name)
         commands = [
             # please don't add git add -u here to not accidentally commit other files
             f"git commit -m 'Release {version}'",
