@@ -210,11 +210,8 @@ def main():
         else:
             assert Path.cwd().name == "laminhub"  # noqa: S101
             repo_name = "laminhub"
-            if not (Path.cwd().parent / "laminhub-public").exists():
-                raise ValueError(
-                    "Please clone the laminhub-public repository into the same parent"
-                    " directory as laminhub."
-                )
+            if not (Path.cwd() / "laminhub-public/README.md").exists():
+                raise ValueError("Please update the laminhub-public git submodule.")
             is_laminhub = True
             with open("ui/package.json") as file:
                 version = json.load(file)["version"]
@@ -258,17 +255,17 @@ def main():
             body=f"See {changelog_link}",
         )
         if is_laminhub:
-            update_readme_version("../laminhub-public/README.md", version)
+            update_readme_version("./laminhub-public/README.md", version)
             for command in commands:
                 print(f"\nrun: {command}")
-                run(command, shell=True, cwd="../laminhub-public")  # noqa: S602
+                run(command, shell=True, cwd="./laminhub-public")  # noqa: S602
             publish_github_release(
                 repo_name="laminlabs/laminhub-public",
                 version=version,
                 body=f"See {changelog_link}",
                 release_name=f"Release {version}",
                 generate_release_notes=False,
-                cwd="../laminhub-public",
+                cwd="./laminhub-public",
             )
 
         if args.pypi:
