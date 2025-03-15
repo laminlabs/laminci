@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+♻️ Treat `laminhub-public` as a submodule | [51](https://github.com/laminlabs/laminci/pull/51) | [falexwolf](https://github.com/falexwolf) | 2025-03-15 |
 ♻️ Nicer release experience | [50](https://github.com/laminlabs/laminci/pull/50) | [falexwolf](https://github.com/falexwolf) | 2025-03-05 |
 ♻️ Safer release mgmt | [49](https://github.com/laminlabs/laminci/pull/49) | [falexwolf](https://github.com/falexwolf) | 2025-02-19 |
 🐛 Enforce compatibility with new nox release | [48](https://github.com/laminlabs/laminci/pull/48) | [fredericenard](https://github.com/fredericenard) | 2025-02-10 |
