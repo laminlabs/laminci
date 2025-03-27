@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+♻️ Simplify upload docs artifact | [52](https://github.com/laminlabs/laminci/pull/52) | [falexwolf](https://github.com/falexwolf) | 2025-03-27 |
 ♻️ Treat `laminhub-public` as a submodule | [51](https://github.com/laminlabs/laminci/pull/51) | [falexwolf](https://github.com/falexwolf) | 2025-03-15 |
 ♻️ Nicer release experience | [50](https://github.com/laminlabs/laminci/pull/50) | [falexwolf](https://github.com/falexwolf) | 2025-03-05 |
 ♻️ Safer release mgmt | [49](https://github.com/laminlabs/laminci/pull/49) | [falexwolf](https://github.com/falexwolf) | 2025-02-19 |
