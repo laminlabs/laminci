@@ -30,6 +30,12 @@ subparsers.add_parser(
     "doc-changes",
     help="Write latest changes",
 )
+upload_docs = subparsers.add_parser(
+    "upload-docs",
+)
+aa = upload_docs.add_argument
+aa("--dir", default="./docs", help="Docs dir link")
+aa("--in-pr", default=False, action="store_true", help="Also uplod in PR")
 
 
 def update_readme_version(file_path, new_version):
@@ -276,3 +282,7 @@ def main():
         from ._doc_changes import doc_changes
 
         doc_changes()
+    elif args.command == "upload-docs":
+        from ._docs_artifacts import upload_docs_artifact
+
+        upload_docs_artifact(docs_dir=args.dir, in_pr=args.in_pr)

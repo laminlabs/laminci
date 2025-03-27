@@ -10,7 +10,7 @@ def zip_docs_dir(zip_filename: str, docs_dir: str = "./docs") -> None:
         for f in Path(docs_dir).glob("**/*"):
             if ".ipynb_checkpoints" in str(f):
                 continue
-            if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg", ".py"}:
+            if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg", ".py", ".R"}:
                 zf.write(f, f.relative_to(docs_dir))  # add at root level
 
 
@@ -24,10 +24,13 @@ def zip_docs(docs_dir: str = "./docs"):
     return repo_name, zip_filename
 
 
-def upload_docs_artifact(aws: bool = False, docs_dir: str = "./docs") -> None:
-    if os.getenv("GITHUB_EVENT_NAME") not in {"push", "repository_dispatch"}:
-        print("Only upload docs artifact for push event.")
-        return None
+def upload_docs_artifact(
+    aws: bool = False, docs_dir: str = "./docs", in_pr: bool = False
+) -> None:
+    if not in_pr:
+        if os.getenv("GITHUB_EVENT_NAME") not in {"push", "repository_dispatch"}:
+            print("Only upload docs artifact for push event.")
+            return None
     if aws:
         print("aws arg no longer needed")
     _, zip_filename = zip_docs(docs_dir)
