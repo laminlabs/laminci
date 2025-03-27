@@ -7,30 +7,30 @@ from zipfile import ZipFile
 from lamin_utils import logger
 
 
-def zip_docs_dir(zip_filename: str) -> None:
+def zip_docs_dir(zip_filename: str, docs_dir: str = "./docs") -> None:
     with ZipFile(zip_filename, "w") as zf:
         zf.write("README.md")
-        for f in Path("./docs").glob("**/*"):
+        for f in Path(docs_dir).glob("**/*"):
             if ".ipynb_checkpoints" in str(f):
                 continue
             if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg", ".py"}:
-                zf.write(f, f.relative_to("./docs"))  # add at root level
+                zf.write(f, f.relative_to(docs_dir))  # add at root level
 
 
-def zip_docs():
+def zip_docs(docs_dir: str = "./docs"):
     repo_name = Path.cwd().name
     assert "." not in repo_name  # doesn't have a weird suffix  # noqa: S101
     assert Path(".git/").exists()  # is git repo  # noqa: S101
     assert repo_name.lower() == repo_name  # is all lower-case  # noqa: S101
     zip_filename = f"{repo_name}.zip"
-    zip_docs_dir(zip_filename)
+    zip_docs_dir(zip_filename, docs_dir)
     return repo_name, zip_filename
 
 
 # Ruff seems to ignore any noqa comments in the following and we therefore disable it briefly
 # ruff: noqa
-def upload_docs_artifact_aws() -> None:
-    repo_name, zip_filename = zip_docs()
+def upload_docs_artifact_aws(docs_dir: str = "./docs") -> None:
+    repo_name, zip_filename = zip_docs(docs_dir)
     run(
         f"aws s3 cp {zip_filename} s3://lamin-site-assets/docs/{zip_filename}",
         shell=True,
@@ -58,13 +58,13 @@ def upload_docs_artifact_lamindb() -> None:
     ln.add(file)
 
 
-def upload_docs_artifact(aws: bool = False) -> None:
+def upload_docs_artifact(aws: bool = False, docs_dir: str = "./docs") -> None:
     if os.getenv("GITHUB_EVENT_NAME") not in {"push", "repository_dispatch"}:
         logger.info("Only upload docs artifact for push event.")
         return None
 
     if aws:
-        upload_docs_artifact_aws()
+        upload_docs_artifact_aws(docs_dir)
     else:
         try:
             # this is super ugly but necessary right now
