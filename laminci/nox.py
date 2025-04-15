@@ -95,6 +95,7 @@ def install_lamindb(
     session: Session,
     branch: Literal["release", "main"],
     extras: Optional[Union[Iterable[str], str]] = None,
+    target_dir: str = "lamindb",
 ):
     if extras is None:
         extras_str = ""
@@ -117,6 +118,7 @@ def install_lamindb(
         "--recursive",
         "--shallow-submodules",
         "https://github.com/laminlabs/lamindb",
+        target_dir,
     )
     if branch != "release":
         session.run(
@@ -125,15 +127,15 @@ def install_lamindb(
             "install",
             "--system",
             "--no-deps",
-            "./lamindb/sub/lamindb-setup",
-            "./lamindb/sub/lamin-cli",
-            "./lamindb/sub/bionty",
-            "./lamindb/sub/wetlab",
+            f"./{target_dir}/sub/lamindb-setup",
+            f"./{target_dir}/sub/lamin-cli",
+            f"./{target_dir}/sub/bionty",
+            f"./{target_dir}/sub/wetlab",
         )
     session.run(
         "uv",
         "pip",
         "install",
         "--system",
-        f"./lamindb{extras_str}",
+        f"./{target_dir}{extras_str}",
     )
