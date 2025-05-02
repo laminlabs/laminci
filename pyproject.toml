@@ -10,7 +10,7 @@ dynamic = ["version", "description"]
 dependencies = [
     # this CANNOT depend on lamindb
     "uv",
-    "nox",
+    "nox<=2025.5.1",  # seems to require new attrs version: AttributeError: module 'attrs.validators' has no attribute 'or_'
     "lamin_utils",
     "pyyaml",
     "boto3",
