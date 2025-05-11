@@ -62,6 +62,8 @@ def session_decorator(
     logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
     logging.getLogger("httpcore.http2").setLevel(logging.WARNING)
     logging.getLogger("hpack.hpack").setLevel(logging.WARNING)
+    logging.getLogger("hpack.table").setLevel(logging.WARNING)
+    logging.getLogger("botocore.client").setLevel(logging.WARNING)
     logging.getLogger("httpcore.connection").setLevel(logging.WARNING)
     logging.getLogger("botocore.credentials").setLevel(logging.WARNING)
     logging.getLogger("botocore.loaders").setLevel(logging.WARNING)
