@@ -32,8 +32,8 @@ def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = Non
     )
     if process.returncode == 0:
         logger.info(
-            "Created Postgres test instance:"
-            f" 'postgresql://postgres:pwd@0.0.0.0:5432/{name}'\nIt runs in docker"
+            "created Postgres test instance:"
+            f" 'postgresql://postgres:pwd@0.0.0.0:5432/{name}' -- it runs in docker"
             f" container '{name}'"
         )
     else:
