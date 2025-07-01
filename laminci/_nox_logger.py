@@ -76,6 +76,8 @@ def session_decorator(
     logging.getLogger("botocore.auth").setLevel(logging.WARNING)
     logging.getLogger("botocore.endpoint").setLevel(logging.WARNING)
     logging.getLogger("botocore.parsers").setLevel(logging.WARNING)
+    logging.getLogger("h5py._conv").setLevel(logging.WARNING)
+    logging.getLogger("numcodecs").setLevel(logging.WARNING)
     return fn
 
 
