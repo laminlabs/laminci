@@ -238,7 +238,7 @@ def main():
         check_only_version_bump_staged(package_name)
         commands = [
             # please don't add git add -u here to not accidentally commit other files
-            f"git commit -m 'Release {version}'",
+            f'git commit -m "Release {version}"',
             # please don't add an auto-pull here to not conflate when the release was made
             "git push",
             f"git tag {version}",
