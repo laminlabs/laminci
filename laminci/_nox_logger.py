@@ -59,6 +59,7 @@ def session_decorator(
     # this is the line we add to silence the httpx logger
     logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpx_retries.transport").setLevel(logging.WARNING)
     logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
     logging.getLogger("httpcore.http2").setLevel(logging.WARNING)
     logging.getLogger("hpack.hpack").setLevel(logging.WARNING)
