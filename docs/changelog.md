@@ -3,6 +3,7 @@
 <!-- prettier-ignore -->
 Name | PR | Developer | Date | Version
 --- | --- | --- | --- | ---
+♻️ Use new API keys | [54](https://github.com/laminlabs/laminci/pull/54) | [falexwolf](https://github.com/falexwolf) | 2025-12-08 |
 🐛 Fix release commit on Windows | [53](https://github.com/laminlabs/laminci/pull/53) | [Koncopd](https://github.com/Koncopd) | 2025-08-07 |
 ♻️ Simplify upload docs artifact | [52](https://github.com/laminlabs/laminci/pull/52) | [falexwolf](https://github.com/falexwolf) | 2025-03-27 |
 ♻️ Treat `laminhub-public` as a submodule | [51](https://github.com/laminlabs/laminci/pull/51) | [falexwolf](https://github.com/falexwolf) | 2025-03-15 |
