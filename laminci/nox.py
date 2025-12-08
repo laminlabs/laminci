@@ -30,10 +30,11 @@ def _login_lamin_user(handle: str, env: Optional[dict[str, str]] = None):
         "arn:aws:secretsmanager:us-east-1:586130067823:secret:laminlabs-internal-sZj1MU"
     )
     secrets = json.loads(client.get_secret_value(SecretId=arn)["SecretString"])
+    suffix = "_STAGING" if os.getenv("LAMIN_ENV", "prod") == "staging" else ""
     if handle == "testuser1":
-        ln_setup.login(api_key=secrets["LAMIN_TESTUSER1_API_KEY"])
+        ln_setup.login(api_key=secrets[f"LAMIN_TESTUSER1_API_KEY{suffix}"])
     elif handle == "testuser2":
-        ln_setup.login(api_key=secrets["LAMIN_TESTUSER2_API_KEY"])
+        ln_setup.login(api_key=secrets[f"LAMIN_TESTUSER2_API_KEY{suffix}"])
     else:
         raise NotImplementedError
 
