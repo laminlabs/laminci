@@ -15,7 +15,7 @@ SYSTEM = " --system " if os.getenv("CI") else ""
 nox.options.default_venv_backend = "none"
 
 
-def _login_lamin_user(user_email: str, env: Optional[dict[str, str]] = None):
+def _login_lamin_user(handle: str, env: Optional[dict[str, str]] = None):
     import boto3
     import lamindb_setup as ln_setup
 
@@ -30,20 +30,20 @@ def _login_lamin_user(user_email: str, env: Optional[dict[str, str]] = None):
         "arn:aws:secretsmanager:us-east-1:586130067823:secret:laminlabs-internal-sZj1MU"
     )
     secrets = json.loads(client.get_secret_value(SecretId=arn)["SecretString"])
-    if user_email == "testuser1@lamin.ai":
-        ln_setup.login(user_email, key=secrets["LAMIN_TESTUSER1_API_KEY"])
-    elif user_email == "testuser2@lamin.ai":
-        ln_setup.login(user_email, key=secrets["LAMIN_TESTUSER2_API_KEY"])
+    if handle == "testuser1":
+        ln_setup.login(api_key=secrets["LAMIN_TESTUSER1_API_KEY"])
+    elif handle == "testuser2":
+        ln_setup.login(api_key=secrets["LAMIN_TESTUSER2_API_KEY"])
     else:
         raise NotImplementedError
 
 
 def login_testuser1(session: Session, env: Optional[dict[str, str]] = None):
-    _login_lamin_user("testuser1@lamin.ai", env=env)
+    _login_lamin_user("testuser1", env=env)
 
 
 def login_testuser2(session: Session, env: Optional[dict[str, str]] = None):
-    _login_lamin_user("testuser2@lamin.ai", env=env)
+    _login_lamin_user("testuser2", env=env)
 
 
 def run(session: Session, s: str, **kwargs):
