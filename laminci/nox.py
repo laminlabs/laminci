@@ -131,7 +131,7 @@ def install_lamindb(
             f"./{target_dir}/sub/lamindb-setup",
             f"./{target_dir}/sub/lamin-cli",
             f"./{target_dir}/sub/bionty",
-            f"./{target_dir}/sub/wetlab",
+            f"./{target_dir}/sub/pertdb",
         )
     session.run(
         "uv",
