@@ -47,7 +47,7 @@ def process_markdown_file(input_file: str, output_file: str):
     open(output_file, "w").write(f"{badge}\n\n{content}")
 
 
-def convert_executable_md_files_to_ipynb(docs_dir: str = "./docs") -> None:
+def convert_executable_md_files(docs_dir: str = "./docs") -> None:
     for md_path in Path(docs_dir).glob("*.md"):
         head = md_path.read_text().splitlines()[:20]
         if "execute_via:" not in "\n".join(head):

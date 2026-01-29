@@ -13,6 +13,6 @@ from ._docs import (
     move_built_docs_to_docs_slash_project_slug,
     move_built_docs_to_slash_project_slug,
 )
-from ._docs_artifacts import convert_executable_md_files_to_ipynb, upload_docs_artifact
+from ._docs_artifacts import convert_executable_md_files, upload_docs_artifact
 from ._env import get_package_name, get_schema_handle
 from ._run_notebooks import run_notebooks
