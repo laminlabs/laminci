@@ -8,9 +8,9 @@ from zipfile import ZipFile
 def get_repo_name() -> str:
     """Return the current directory name, validated as a git repo with lowercase name."""
     repo_name = Path.cwd().name
-    assert "." not in repo_name  # doesn't have a weird suffix  # noqa: S101
-    assert Path(".git/").exists()  # is git repo  # noqa: S101
-    assert repo_name.lower() == repo_name  # is all lower-case  # noqa: S101
+    assert "." not in repo_name  # doesn't have a weird suffix
+    assert Path(".git/").exists()  # is git repo
+    assert repo_name.lower() == repo_name  # is all lower-case
     return repo_name
 
 
