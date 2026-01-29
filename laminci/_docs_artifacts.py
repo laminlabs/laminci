@@ -42,6 +42,7 @@ def process_markdown(input_file, output_file):
     source_url = f"https://github.com/laminlabs/{repo_name}/blob/main/{rel_path}"
     badge = f"[![Markdown](https://img.shields.io/badge/Markdown-orange)]({source_url})"
     content = open(input_file).read()
+    content = re.sub(r"^---\n.*?\n---\n?", "", content, flags=re.DOTALL)
     content = re.sub(r"```python\n", r'```python tags=["hide-output"]\n', content)
     open(output_file, "w").write(f"{badge}\n\n{content}")
 
