@@ -22,13 +22,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Checkout lndocs
-        uses: actions/checkout@v4
-        with:
-          repository: laminlabs/lndocs
-          ssh-key: ${{ secrets.READ_LNDOCS }}
-          path: lndocs
-          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
