@@ -1,7 +1,17 @@
 import os
+import re
 from pathlib import Path
 from subprocess import run
 from zipfile import ZipFile
+
+
+def get_repo_name() -> str:
+    """Return the current directory name, validated as a git repo with lowercase name."""
+    repo_name = Path.cwd().name
+    assert "." not in repo_name  # doesn't have a weird suffix  # noqa: S101
+    assert Path(".git/").exists()  # is git repo  # noqa: S101
+    assert repo_name.lower() == repo_name  # is all lower-case  # noqa: S101
+    return repo_name
 
 
 def zip_docs_dir(zip_filename: str, docs_dir: str = "./docs") -> None:
@@ -15,13 +25,25 @@ def zip_docs_dir(zip_filename: str, docs_dir: str = "./docs") -> None:
 
 
 def zip_docs(docs_dir: str = "./docs"):
-    repo_name = Path.cwd().name
-    assert "." not in repo_name  # doesn't have a weird suffix  # noqa: S101
-    assert Path(".git/").exists()  # is git repo  # noqa: S101
-    assert repo_name.lower() == repo_name  # is all lower-case  # noqa: S101
+    repo_name = get_repo_name()
     zip_filename = f"{repo_name}.zip"
     zip_docs_dir(zip_filename, docs_dir)
     return repo_name, zip_filename
+
+
+def process_markdown(input_file, output_file):
+    """Process a raw markdown document.
+
+    Add hide-output tags to all code cells in a markdown file.
+    Add a badge with the source code link on GitHub.
+    """
+    repo_name = get_repo_name()
+    rel_path = Path(input_file).resolve().relative_to(Path.cwd())
+    source_url = f"https://github.com/laminlabs/{repo_name}/blob/main/{rel_path}"
+    badge = f"[![Markdown](https://img.shields.io/badge/Markdown-orange)]({source_url})"
+    content = open(input_file).read()
+    content = re.sub(r"```python\n", r'```python tags=["hide-output"]\n', content)
+    open(output_file, "w").write(f"{badge}\n\n{content}")
 
 
 def upload_docs_artifact(
