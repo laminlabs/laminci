@@ -1,12 +1,6 @@
-# laminci: Internal CI tools
+# laminci: CI tools for lamin packages
 
-From PyPI (sometimes outdated):
-
-```
-pip install laminci
-```
-
-From GitHub:
+Install from GitHub:
 
 ```
 pip install git+https://github.com/laminlabs/laminci
