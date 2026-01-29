@@ -48,7 +48,7 @@ def process_markdown_file(input_file: str, output_file: str):
 
 
 def convert_executable_md_files(docs_dir: str = "./docs") -> None:
-    for md_path in Path(docs_dir).glob("*.md"):
+    for md_path in Path(docs_dir).glob("**/*.md"):
         head = md_path.read_text().splitlines()[:20]
         if "execute_via:" not in "\n".join(head):
             continue
