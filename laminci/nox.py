@@ -48,7 +48,7 @@ def login_testuser2(session: Session, env: Optional[dict[str, str]] = None):
 
 
 def run(session: Session, s: str, **kwargs):
-    assert (args := shlex.split(s))  # noqa: S101
+    assert (args := shlex.split(s))
     return session.run(*args, **kwargs)
 
 
@@ -104,7 +104,7 @@ def install_lamindb(
         if extras == "":
             extras_str = ""
         else:
-            assert "[" not in extras and "]" not in extras  # noqa: S101
+            assert "[" not in extras and "]" not in extras
             extras_str = f"[{extras}]"
     else:
         extras_str = f"[{','.join(extras)}]"

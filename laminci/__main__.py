@@ -214,7 +214,7 @@ def main():
                 ) from None
             repo_name = package_name.replace("_", "-")
         else:
-            assert Path.cwd().name == "laminhub"  # noqa: S101
+            assert Path.cwd().name == "laminhub"
             repo_name = "laminhub"
             if not (Path.cwd() / "laminhub-public/README.md").exists():
                 raise ValueError("Please update the laminhub-public git submodule.")
