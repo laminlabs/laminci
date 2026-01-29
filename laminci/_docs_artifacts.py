@@ -31,7 +31,7 @@ def zip_docs(docs_dir: str = "./docs"):
     return repo_name, zip_filename
 
 
-def process_markdown(input_file, output_file):
+def process_markdown_file(input_file: str, output_file: str):
     """Process a raw markdown document.
 
     Add hide-output tags to all code cells in a markdown file.
@@ -45,6 +45,21 @@ def process_markdown(input_file, output_file):
     content = re.sub(r"^---\n.*?\n---\n?", "", content, flags=re.DOTALL)
     content = re.sub(r"```python\n", r'```python tags=["hide-output"]\n', content)
     open(output_file, "w").write(f"{badge}\n\n{content}")
+
+
+def convert_executable_md_files_to_ipynb(docs_dir: str = "./docs") -> None:
+    for md_path in Path(docs_dir).glob("*.md"):
+        head = md_path.read_text().splitlines()[:20]
+        if "execute_via:" not in "\n".join(head):
+            continue
+        stem = md_path.stem
+        processed = md_path.parent / f"{stem}_processed.md"
+        notebook_path = md_path.parent / f"{stem}.ipynb"
+        process_markdown_file(str(md_path), str(processed))
+        os.system(
+            f"jupytext --from md:markdown {processed} --to notebook --output {notebook_path}"
+        )
+        os.system(f"rm {md_path} {processed}")
 
 
 def upload_docs_artifact(

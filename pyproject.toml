@@ -141,7 +141,9 @@ lint.ignore = [
     # Starting a process with a partial executable path
     "S607",
     # asserts
-    "S101"
+    "S101",
+    # shell calls
+    "S605"
 ]
 
 [tool.ruff.lint.pydocstyle]
