@@ -44,7 +44,13 @@ def process_markdown_file(input_file: str, output_file: str):
     content = open(input_file).read()
     content = re.sub(r"^---\n.*?\n---\n?", "", content, flags=re.DOTALL)
     content = re.sub(r"```python\n", r'```python tags=["hide-output"]\n', content)
-    open(output_file, "w").write(f"{badge}\n\n{content}")
+    if re.search(r"^# ", content, flags=re.MULTILINE):
+        content = re.sub(
+            r"^(# .*)$", r"\1 " + badge, content, count=1, flags=re.MULTILINE
+        )
+    else:
+        content = f"{badge}\n\n{content}"
+    open(output_file, "w").write(content)
 
 
 def convert_executable_md_files(docs_dir: str = "./docs") -> None:
