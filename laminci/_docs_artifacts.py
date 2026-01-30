@@ -21,6 +21,9 @@ def zip_docs_dir(zip_filename: str, docs_dir: str = "./docs") -> None:
             if ".ipynb_checkpoints" in str(f):
                 continue
             if f.suffix in {".md", ".ipynb", ".png", ".jpg", ".svg", ".py", ".R"}:
+                # do not duplicate markdown and ipynb files
+                if f.suffix == ".md" and f.with_suffix(".ipynb").exists():
+                    continue
                 zf.write(f, f.relative_to(docs_dir))  # add at root level
 
 
