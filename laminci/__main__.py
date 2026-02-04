@@ -204,8 +204,8 @@ def main():
                 )
             if package_name == "lamindb" and args.changelog is None:
                 raise SystemExit(
-                    "Please pass a link to the changelog entry via: --changelog"
-                    " 'your-link'"
+                    "Please pass a link to the changelog entry via, e.g.: --changelog"
+                    " https://docs.lamin.ai/changelog/2026#db-2-1-1"
                 ) from None
             if Path("./LICENSE").exists() and not args.pypi:
                 raise SystemExit(
