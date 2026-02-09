@@ -236,9 +236,10 @@ def main():
         run("git add -u", shell=True)  # noqa: S602
         # check that only __init__.py is staged to avoid accidental commits
         check_only_version_bump_staged(package_name)
+        expected_message = f"🔖 Release {version}"
         commands = [
             # please don't add git add -u here to not accidentally commit other files
-            f'git commit -m "Release {version}"',
+            f'git commit -m "{expected_message}"',
             # please don't add an auto-pull here to not conflate when the release was made
             "git push",
             f"git tag {version}",
@@ -247,6 +248,18 @@ def main():
         for command in commands:
             print(f"\nrun: {command}")
             run(command, shell=True)  # noqa: S602
+            # gitmoji might add a second emoji; ensure message starts with "🔖 Release"
+            if command.startswith("git commit -m "):
+                result = run(
+                    ["git", "log", "-1", "--format=%s"],
+                    capture_output=True,
+                    text=True,
+                )
+                if result.returncode == 0 and not result.stdout.strip().startswith(
+                    "🔖 Release"
+                ):
+                    print(f'\nrun: git commit --amend -m "{expected_message}"')
+                    run(f'git commit --amend -m "{expected_message}"', shell=True)  # noqa: S602
 
         changelog_link = (
             args.changelog
