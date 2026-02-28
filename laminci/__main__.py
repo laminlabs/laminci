@@ -5,10 +5,14 @@ import importlib
 import json
 import os
 import re
+import shutil
 import subprocess
+import tempfile
+import zipfile
 from pathlib import Path
 from subprocess import PIPE, run
 
+import tomllib
 from packaging.version import Version, parse
 
 from ._env import get_package_name
@@ -149,9 +153,14 @@ def publish_github_release(
             ) from None
 
 
-def check_only_version_bump_staged(package_name: str):
-    # Check if __init__.py is staged in git and no other files are staged
+def check_only_version_bump_staged(
+    package_name: str, additional_staged_files: list[str] | None = None
+):
+    # Check that the expected files are staged and no others
     init_file_path = f"{package_name}/__init__.py"
+    expected_files = {init_file_path}
+    if additional_staged_files:
+        expected_files.update(additional_staged_files)
 
     # Get list of staged files
     import subprocess
@@ -168,19 +177,134 @@ def check_only_version_bump_staged(package_name: str):
             f"{init_file_path} is not staged in git. Please stage it before releasing."
         )
 
-    # Check if __init__.py is among staged files
-    if init_file_path not in staged_files:
+    # Check if all expected files are staged
+    missing_files = [f for f in expected_files if f not in staged_files]
+    if missing_files:
         raise ValueError(
-            f"{init_file_path} is not staged in git. Please stage it before releasing."
+            f"Missing staged files: {', '.join(missing_files)}. Please stage them before releasing."
         )
 
     # Check if any additional files are staged
-    if len(staged_files) > 1:
-        other_files = [f for f in staged_files if f != init_file_path]
+    if len(staged_files) > len(expected_files):
+        other_files = [f for f in staged_files if f not in expected_files]
         raise ValueError(
             f"Additional files are staged for commit: {', '.join(other_files)}. "
             f"Please unstage these files before releasing."
         )
+
+
+def _run_checked(command: list[str], cwd: str | None = None):
+    print(f"\nrun: {' '.join(command)}")
+    subprocess.run(command, check=True, cwd=cwd)
+
+
+def _build_wheel_with_pyproject(pyproject_file: Path, dist_dir: Path) -> Path:
+    dist_dir.mkdir(parents=True, exist_ok=True)
+    _run_checked(["flit", "-f", str(pyproject_file), "build", "--format", "wheel"])
+    project_name = tomllib.loads(pyproject_file.read_text())["project"]["name"]
+    wheel_prefix = project_name.replace("-", "_")
+    source_wheels = sorted(
+        Path("dist").glob(f"{wheel_prefix}-*.whl"), key=lambda p: p.stat().st_mtime
+    )
+    if not source_wheels:
+        raise SystemExit(f"No wheel for {project_name} was produced in dist/")
+    built_wheel = source_wheels[-1]
+    target_wheel = dist_dir / built_wheel.name
+    shutil.copy2(built_wheel, target_wheel)
+    return target_wheel
+
+
+def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
+    with zipfile.ZipFile(wheel_path, "r") as zf:
+        return any(name.startswith("lamindb/") for name in zf.namelist())
+
+
+def _assert_lamindb_dependency_pin(version: str):
+    pyproject = Path("pyproject.full.toml").read_text()
+    expected = f'"lamindb-core=={version}"'
+    if expected not in pyproject:
+        raise SystemExit(
+            f"Please pin {expected} in pyproject.full.toml before releasing lamindb."
+        ) from None
+
+
+def run_lamindb_dual_smoke_checks(version: str):
+    # Pre-publish safety check for lamindb dual-distribution releases.
+    # We intentionally create an isolated venv and install dependencies to ensure
+    # the published wheels behave correctly across install/uninstall sequences.
+    core_pyproject = Path("pyproject.toml")
+    full_pyproject = Path("pyproject.full.toml")
+    if not full_pyproject.exists():
+        raise SystemExit("Missing pyproject.full.toml for lamindb dual release flow.")
+
+    print(
+        "\nINFO: Running lamindb dual-package smoke checks before publish.\n"
+        "INFO: This will build both wheels and install packages in a temporary venv."
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        print(f"INFO: Building wheels from {core_pyproject} and {full_pyproject}")
+        core_wheel = _build_wheel_with_pyproject(core_pyproject, tmpdir_path / "core")
+        full_wheel = _build_wheel_with_pyproject(full_pyproject, tmpdir_path / "full")
+
+        if "lamindb_core-" not in core_wheel.name:
+            raise SystemExit(f"Unexpected lamindb-core wheel name: {core_wheel.name}")
+        if "lamindb-" not in full_wheel.name:
+            raise SystemExit(f"Unexpected lamindb wheel name: {full_wheel.name}")
+        if not _wheel_has_lamindb_package(core_wheel):
+            raise SystemExit(f"{core_wheel.name} does not contain lamindb/ package")
+        if _wheel_has_lamindb_package(full_wheel):
+            raise SystemExit(
+                f"{full_wheel.name} unexpectedly contains lamindb/ package"
+            )
+
+        venv_dir = tmpdir_path / "venv"
+        print(f"INFO: Creating temporary smoke-test environment at {venv_dir}")
+        _run_checked(["python", "-m", "venv", str(venv_dir)])
+        pip = str(venv_dir / "bin" / "pip")
+        python = str(venv_dir / "bin" / "python")
+
+        _run_checked([pip, "install", "--upgrade", "pip"])
+        print(
+            "INFO: Installing core runtime dependencies into temp venv "
+            "(expected and required for the smoke check)."
+        )
+        _run_checked(
+            [
+                pip,
+                "install",
+                "lamin_utils==0.16.4",
+                "lamin_cli==1.14.1",
+                "lamindb_setup[aws]==1.22.0",
+                "pyyaml",
+                "typing_extensions!=4.6.0",
+                "python-dateutil",
+                "scipy<1.17.0",
+                "fsspec",
+                "graphviz",
+                "psycopg2-binary",
+            ]
+        )
+        _run_checked([pip, "install", str(core_wheel)])
+        _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Core wheel import check passed.")
+        _run_checked([pip, "install", str(full_wheel)])
+        _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Full wheel import check passed.")
+        _run_checked([pip, "uninstall", "-y", "lamindb"])
+        _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Uninstall check passed (lamindb-core still imports).")
+
+
+def publish_lamindb_dual():
+    core_pyproject = Path("pyproject.toml")
+    full_pyproject = Path("pyproject.full.toml")
+    if not full_pyproject.exists():
+        raise SystemExit("Missing pyproject.full.toml for lamindb dual release flow.")
+
+    _run_checked(["flit", "-f", str(core_pyproject), "publish"])
+    _run_checked(["flit", "-f", str(full_pyproject), "publish"])
 
 
 def main():
@@ -188,6 +312,14 @@ def main():
 
     if args.command == "release":
         package_name = get_package_name()
+        is_lamindb_dual_release = False
+        if (
+            package_name == "lamindb_core"
+            and Path("pyproject.full.toml").exists()
+            and Path("lamindb/__init__.py").exists()
+        ):
+            package_name = "lamindb"
+            is_lamindb_dual_release = True
         # cannot do the below as this wouldn't register immediate changes
         # from importlib.metadata import version as get_version
         # version = get_version(package_name)
@@ -224,8 +356,7 @@ def main():
 
         print(f"INFO: You will add this changelog link: {args.changelog}")
         print(
-            "WARNING: This assumes you staged your bumped version tag with `git add myproject/__init__.py`"
-            " for laminci to commit it."
+            "WARNING: This assumes you staged your bumped version tag for laminci to commit it."
         )
         pypi = " & publish to PyPI" if args.pypi else ""
         response = input(f"Bump {previous_version} to {version}{pypi}? (y/n)")
@@ -234,8 +365,13 @@ def main():
 
         # add all current files, assuming a clean directory
         run("git add -u", shell=True)  # noqa: S602
-        # check that only __init__.py is staged to avoid accidental commits
-        check_only_version_bump_staged(package_name)
+        # check only the expected version bump files are staged
+        additional_staged_files = (
+            ["pyproject.full.toml"] if is_lamindb_dual_release else None
+        )
+        check_only_version_bump_staged(
+            package_name, additional_staged_files=additional_staged_files
+        )
         expected_message = f"🔖 Release {version}"
         commands = [
             # please don't add git add -u here to not accidentally commit other files
@@ -288,9 +424,18 @@ def main():
             )
 
         if args.pypi:
-            command = "flit publish"
-            print(f"\nrun: {command}")
-            run(command, shell=True)  # noqa: S602
+            if is_lamindb_dual_release:
+                print(
+                    "INFO: Detected lamindb dual-release mode (core + full). "
+                    "Running pre-publish consistency and smoke checks."
+                )
+                _assert_lamindb_dependency_pin(version)
+                run_lamindb_dual_smoke_checks(version)
+                publish_lamindb_dual()
+            else:
+                command = "flit publish"
+                print(f"\nrun: {command}")
+                run(command, shell=True)  # noqa: S602
     elif args.command == "doc-changes":
         from ._doc_changes import doc_changes
 
