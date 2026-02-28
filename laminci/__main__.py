@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import contextlib
 import importlib
 import json
 import os
@@ -13,6 +12,7 @@ import zipfile
 from pathlib import Path
 from subprocess import PIPE, run
 
+import tomllib
 from packaging.version import Version, parse
 
 from ._env import get_package_name
@@ -193,17 +193,6 @@ def check_only_version_bump_staged(
         )
 
 
-@contextlib.contextmanager
-def use_pyproject(source_file: Path):
-    pyproject_file = Path("pyproject.toml")
-    original = pyproject_file.read_text()
-    try:
-        pyproject_file.write_text(source_file.read_text())
-        yield
-    finally:
-        pyproject_file.write_text(original)
-
-
 def _run_checked(command: list[str], cwd: str | None = None):
     print(f"\nrun: {' '.join(command)}")
     subprocess.run(command, check=True, cwd=cwd)
@@ -211,11 +200,14 @@ def _run_checked(command: list[str], cwd: str | None = None):
 
 def _build_wheel_with_pyproject(pyproject_file: Path, dist_dir: Path) -> Path:
     dist_dir.mkdir(parents=True, exist_ok=True)
-    with use_pyproject(pyproject_file):
-        _run_checked(["flit", "build", "--format", "wheel"])
-    source_wheels = sorted(Path("dist").glob("*.whl"), key=lambda p: p.stat().st_mtime)
+    _run_checked(["flit", "-f", str(pyproject_file), "build", "--format", "wheel"])
+    project_name = tomllib.loads(pyproject_file.read_text())["project"]["name"]
+    wheel_prefix = project_name.replace("-", "_")
+    source_wheels = sorted(
+        Path("dist").glob(f"{wheel_prefix}-*.whl"), key=lambda p: p.stat().st_mtime
+    )
     if not source_wheels:
-        raise SystemExit("No wheel was produced in dist/")
+        raise SystemExit(f"No wheel for {project_name} was produced in dist/")
     built_wheel = source_wheels[-1]
     target_wheel = dist_dir / built_wheel.name
     shutil.copy2(built_wheel, target_wheel)
@@ -237,13 +229,22 @@ def _assert_lamindb_dependency_pin(version: str):
 
 
 def run_lamindb_dual_smoke_checks(version: str):
+    # Pre-publish safety check for lamindb dual-distribution releases.
+    # We intentionally create an isolated venv and install dependencies to ensure
+    # the published wheels behave correctly across install/uninstall sequences.
     core_pyproject = Path("pyproject.toml")
     full_pyproject = Path("pyproject.full.toml")
     if not full_pyproject.exists():
         raise SystemExit("Missing pyproject.full.toml for lamindb dual release flow.")
 
+    print(
+        "\nINFO: Running lamindb dual-package smoke checks before publish.\n"
+        "INFO: This will build both wheels and install packages in a temporary venv."
+    )
+
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
+        print(f"INFO: Building wheels from {core_pyproject} and {full_pyproject}")
         core_wheel = _build_wheel_with_pyproject(core_pyproject, tmpdir_path / "core")
         full_wheel = _build_wheel_with_pyproject(full_pyproject, tmpdir_path / "full")
 
@@ -259,11 +260,16 @@ def run_lamindb_dual_smoke_checks(version: str):
             )
 
         venv_dir = tmpdir_path / "venv"
+        print(f"INFO: Creating temporary smoke-test environment at {venv_dir}")
         _run_checked(["python", "-m", "venv", str(venv_dir)])
         pip = str(venv_dir / "bin" / "pip")
         python = str(venv_dir / "bin" / "python")
 
         _run_checked([pip, "install", "--upgrade", "pip"])
+        print(
+            "INFO: Installing core runtime dependencies into temp venv "
+            "(expected and required for the smoke check)."
+        )
         _run_checked(
             [
                 pip,
@@ -282,10 +288,13 @@ def run_lamindb_dual_smoke_checks(version: str):
         )
         _run_checked([pip, "install", str(core_wheel)])
         _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Core wheel import check passed.")
         _run_checked([pip, "install", str(full_wheel)])
         _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Full wheel import check passed.")
         _run_checked([pip, "uninstall", "-y", "lamindb"])
         _run_checked([python, "-c", "import lamindb"])
+        print("INFO: Uninstall check passed (lamindb-core still imports).")
 
 
 def publish_lamindb_dual():
@@ -294,10 +303,8 @@ def publish_lamindb_dual():
     if not full_pyproject.exists():
         raise SystemExit("Missing pyproject.full.toml for lamindb dual release flow.")
 
-    with use_pyproject(core_pyproject):
-        _run_checked(["flit", "publish"])
-    with use_pyproject(full_pyproject):
-        _run_checked(["flit", "publish"])
+    _run_checked(["flit", "-f", str(core_pyproject), "publish"])
+    _run_checked(["flit", "-f", str(full_pyproject), "publish"])
 
 
 def main():
@@ -418,6 +425,10 @@ def main():
 
         if args.pypi:
             if is_lamindb_dual_release:
+                print(
+                    "INFO: Detected lamindb dual-release mode (core + full). "
+                    "Running pre-publish consistency and smoke checks."
+                )
                 _assert_lamindb_dependency_pin(version)
                 run_lamindb_dual_smoke_checks(version)
                 publish_lamindb_dual()
