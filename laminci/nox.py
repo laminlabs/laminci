@@ -138,5 +138,6 @@ def install_lamindb(
         "pip",
         "install",
         "--system",
+        "--prerelease=allow",
         f"./{target_dir}{extras_str}",
     )
