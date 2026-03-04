@@ -99,7 +99,7 @@ def install_lamindb(
     target_dir: str = "lamindb",
 ):
     if extras is None:
-        extras_str = ""
+        extras_str = "[full]"
     elif isinstance(extras, str):
         if extras == "":
             extras_str = ""
