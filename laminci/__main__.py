@@ -221,8 +221,11 @@ def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
 
 def _assert_lamindb_dependency_pin(version: str):
     pyproject = Path("pyproject.full.toml").read_text()
-    expected = f'"lamindb-core=={version}"'
-    if expected not in pyproject:
+    expected = f'"lamindb-core[full]=={version}"'
+    pin_pattern = re.compile(
+        rf'["\']lamindb-core\[full\]\s*==\s*{re.escape(version)}["\']'
+    )
+    if not pin_pattern.search(pyproject):
         raise SystemExit(
             f"Please pin {expected} in pyproject.full.toml before releasing lamindb."
         ) from None
