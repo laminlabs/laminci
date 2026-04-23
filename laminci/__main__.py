@@ -30,6 +30,15 @@ release = subparsers.add_parser(
 aa = release.add_argument
 aa("--pypi", default=False, action="store_true", help="Publish to PyPI")
 aa("--changelog", default=None, help="Link to changelog entry")
+aa(
+    "--lamindb-dual-smoke-checks",
+    default=False,
+    action="store_true",
+    help=(
+        "For lamindb dual-release (core + full): build wheels and run import "
+        "smoke checks in a temporary venv before publishing (slow)."
+    ),
+)
 subparsers.add_parser(
     "doc-changes",
     help="Write latest changes",
@@ -430,10 +439,11 @@ def main():
             if is_lamindb_dual_release:
                 print(
                     "INFO: Detected lamindb dual-release mode (core + full). "
-                    "Running pre-publish consistency and smoke checks."
+                    "Running pre-publish dependency pin check."
                 )
                 _assert_lamindb_dependency_pin(version)
-                run_lamindb_dual_smoke_checks(version)
+                if args.lamindb_dual_smoke_checks:
+                    run_lamindb_dual_smoke_checks(version)
                 publish_lamindb_dual()
             else:
                 command = "flit publish"
