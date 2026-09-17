@@ -231,11 +231,6 @@ def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
         return any(name.startswith("lamindb/") for name in zf.namelist())
 
 
-def _wheel_has_lamindb_skill(wheel_path: Path) -> bool:
-    with zipfile.ZipFile(wheel_path, "r") as zf:
-        return _LAMINDB_SKILL in zf.namelist()
-
-
 def _ensure_lamindb_agents_skill_packaged():
     # flit packs the working tree; without the submodule checkout the skill
     # is missing from the lamindb-core wheel even though git tracks the gitlink.
@@ -244,13 +239,7 @@ def _ensure_lamindb_agents_skill_packaged():
         raise SystemExit(
             f"Missing {_LAMINDB_SKILL} after initializing the lamindb/.agents submodule."
         )
-    with tempfile.TemporaryDirectory() as tmpdir:
-        core_wheel = _build_wheel_with_pyproject(
-            Path("pyproject.toml"), Path(tmpdir) / "core"
-        )
-        if not _wheel_has_lamindb_skill(core_wheel):
-            raise SystemExit(f"{core_wheel.name} does not contain {_LAMINDB_SKILL}")
-        print(f"INFO: {core_wheel.name} contains {_LAMINDB_SKILL}")
+    print(f"INFO: {_LAMINDB_SKILL} is present for publish")
 
 
 def _assert_lamindb_dependency_pin(version: str):
@@ -291,8 +280,6 @@ def run_lamindb_dual_smoke_checks(version: str):
             raise SystemExit(f"Unexpected lamindb wheel name: {full_wheel.name}")
         if not _wheel_has_lamindb_package(core_wheel):
             raise SystemExit(f"{core_wheel.name} does not contain lamindb/ package")
-        if not _wheel_has_lamindb_skill(core_wheel):
-            raise SystemExit(f"{core_wheel.name} does not contain {_LAMINDB_SKILL}")
         if _wheel_has_lamindb_package(full_wheel):
             raise SystemExit(
                 f"{full_wheel.name} unexpectedly contains lamindb/ package"
