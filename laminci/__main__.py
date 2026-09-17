@@ -223,9 +223,23 @@ def _build_wheel_with_pyproject(pyproject_file: Path, dist_dir: Path) -> Path:
     return target_wheel
 
 
+_LAMINDB_SKILL = "lamindb/.agents/skills/lamindb/SKILL.md"
+
+
 def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
     with zipfile.ZipFile(wheel_path, "r") as zf:
         return any(name.startswith("lamindb/") for name in zf.namelist())
+
+
+def _ensure_lamindb_agents_skill_packaged():
+    # flit packs the working tree; without the submodule checkout the skill
+    # is missing from the lamindb-core wheel even though git tracks the gitlink.
+    _run_checked(["git", "submodule", "update", "--init", "lamindb/.agents"])
+    if not Path(_LAMINDB_SKILL).is_file():
+        raise SystemExit(
+            f"Missing {_LAMINDB_SKILL} after initializing the lamindb/.agents submodule."
+        )
+    print(f"INFO: {_LAMINDB_SKILL} is present for publish")
 
 
 def _assert_lamindb_dependency_pin(version: str):
@@ -442,6 +456,7 @@ def main():
                     "Running pre-publish dependency pin check."
                 )
                 _assert_lamindb_dependency_pin(version)
+                _ensure_lamindb_agents_skill_packaged()
                 if args.lamindb_dual_smoke_checks:
                     run_lamindb_dual_smoke_checks(version)
                 publish_lamindb_dual()
