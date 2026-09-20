@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from pathlib import Path
@@ -69,6 +70,16 @@ def convert_executable_md_files(docs_dir: str = "./docs") -> None:
         os.system(
             f"jupytext --from md:markdown {processed} --to notebook --output {notebook_path}"
         )
+        # jupytext --from md:markdown does not write kernelspec/language_info.
+        # myst-nb then warns "No source code lexer found" for every code cell.
+        nb = json.loads(notebook_path.read_text())
+        metadata = nb.setdefault("metadata", {})
+        metadata.setdefault(
+            "kernelspec",
+            {"display_name": "Python 3", "language": "python", "name": "python3"},
+        )
+        metadata.setdefault("language_info", {"name": "python"})
+        notebook_path.write_text(json.dumps(nb, indent=1) + "\n")
         os.system(f"rm {md_path} {processed}")
 
 
