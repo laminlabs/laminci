@@ -20,7 +20,17 @@ def setup_local_test_sqlite_file(src_settings, return_dir: bool = False):
     return tgt_db
 
 
-def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = None):
+def setup_local_test_postgres(
+    name: str = "pgtest",
+    version: Optional[str] = None,
+    databases: Optional[list[str]] = None,
+) -> str | dict[str, str]:
+    """Start one Postgres container on port 5432.
+
+    `databases` creates additional databases in that container and the return
+    value maps each name to its connection URI. Without it, the container's
+    default database (`name`) URI is returned, as before.
+    """
     if version is not None:
         version = ":{version}"
     else:
@@ -42,4 +52,18 @@ def setup_local_test_postgres(name: str = "pgtest", version: Optional[str] = Non
             f"docker stop {name} && docker rm {name}"
         )
     time.sleep(2)
+    if databases:
+        for database in databases:
+            created = run(  # noqa: S602
+                f'docker exec {name} psql -U postgres -c "CREATE DATABASE {database}"',
+                shell=True,
+            )
+            if created.returncode != 0:
+                raise RuntimeError(
+                    f"Failed to create database {database!r} in container {name!r}."
+                )
+        return {
+            database: f"postgresql://postgres:pwd@0.0.0.0:5432/{database}"
+            for database in databases
+        }
     return f"postgresql://postgres:pwd@0.0.0.0:5432/{name}"
