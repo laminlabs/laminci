@@ -232,13 +232,9 @@ def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
 
 
 def _ensure_lamindb_agents_skill_packaged():
-    # flit packs the working tree; without the submodule checkout the skill
-    # is missing from the lamindb-core wheel even though git tracks the gitlink.
-    _run_checked(["git", "submodule", "update", "--init", "lamindb/.agents"])
+    # flit packs the working tree, so the skill has to be present before publish.
     if not Path(_LAMINDB_SKILL).is_file():
-        raise SystemExit(
-            f"Missing {_LAMINDB_SKILL} after initializing the lamindb/.agents submodule."
-        )
+        raise SystemExit(f"Missing {_LAMINDB_SKILL}.")
     print(f"INFO: {_LAMINDB_SKILL} is present for publish")
 
 
