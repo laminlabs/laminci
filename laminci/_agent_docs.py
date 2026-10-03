@@ -11,12 +11,16 @@ def agent_docs_dir(root: Path | None = None) -> Path:
 
 
 def sync_lamindb_agent_docs(root: Path | None = None) -> Path:
-    """Copy ``docs/**/*.md`` into ``lamindb/.agents/docs`` so flit packs them.
+    """Copy the guide into `lamindb/.agents/docs` so flit packs it.
 
-    The copy is removed after the build and is never committed. ``flit publish``
+    Pages come from `docs/**/*.md`. The repository `README.md` is the
+    overview page (there is no `docs/README.md`), so it is copied to
+    `lamindb/.agents/docs/README.md`.
+
+    The copy is removed after the build and is never committed. `flit publish`
     packs only git-tracked files, and builds the wheel from that sdist, so the
     release command stages this directory for the core build and unstages it
-    afterward. ``nox -s prepare`` deletes the executable pages first; refuse to
+    afterward. `nox -s prepare` deletes the executable pages first; refuse to
     package a guide that is already gone.
     """
     root = root or Path.cwd()
@@ -31,6 +35,12 @@ def sync_lamindb_agent_docs(root: Path | None = None) -> Path:
             f"Refusing to package the guide; missing {joined}. "
             "Release from a clean checkout: nox -s prepare deletes executable pages."
         )
+    readme = root / "README.md"
+    if not readme.is_file():
+        raise SystemExit(
+            "Refusing to package the guide; missing README.md. "
+            "The repository README is the overview page."
+        )
     if dest.exists():
         shutil.rmtree(dest)
     count = 0
@@ -39,6 +49,8 @@ def sync_lamindb_agent_docs(root: Path | None = None) -> Path:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, target)
         count += 1
+    shutil.copy2(readme, dest / "README.md")
+    count += 1
     print(f"INFO: Copied {count} guide pages into {dest} for packaging")
     return dest
 

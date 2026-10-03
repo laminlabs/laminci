@@ -16,6 +16,7 @@ def _checkout(root: Path) -> None:
     (root / "lamindb" / "__init__.py").write_text("")
     docs = root / "docs"
     (docs / "faq").mkdir(parents=True)
+    (root / "README.md").write_text("# LaminDB\n")
     (docs / "guide.md").write_text("# Guide\n")
     (docs / "tutorial.md").write_text("# Tutorial\n")
     (docs / "faq" / "search.md").write_text("# Search\n")
@@ -25,12 +26,21 @@ def _checkout(root: Path) -> None:
 def test_sync_copies_markdown_then_remove_deletes_it(tmp_path: Path):
     _checkout(tmp_path)
     dest = sync_lamindb_agent_docs(tmp_path)
+    assert (dest / "README.md").read_text() == "# LaminDB\n"
     assert (dest / "guide.md").read_text() == "# Guide\n"
     assert (dest / "tutorial.md").is_file()
     assert (dest / "faq" / "search.md").is_file()
     assert not (dest / "notes.txt").exists()
     remove_lamindb_agent_docs(tmp_path)
     assert not dest.exists()
+
+
+def test_sync_refuses_when_readme_is_missing(tmp_path: Path):
+    _checkout(tmp_path)
+    (tmp_path / "README.md").unlink()
+    with pytest.raises(SystemExit, match="README.md"):
+        sync_lamindb_agent_docs(tmp_path)
+    assert not (tmp_path / "lamindb" / ".agents" / "docs").exists()
 
 
 def test_sync_refuses_when_prepare_deleted_executable_pages(tmp_path: Path):
@@ -62,7 +72,6 @@ def _git(root: Path, *args: str) -> None:
 
 def _init_repo(root: Path) -> None:
     _checkout(root)
-    (root / "README.md").write_text("# Test\n")
     (root / "lamindb" / "__init__.py").write_text(
         '"""Test package."""\n\n__version__ = "0.0.1"\n'
     )
@@ -117,6 +126,7 @@ def test_release_stages_docs_for_the_build_then_removes_them(
 
     _call_with_lamindb_agent_docs(_during_build)
     assert seen["guide"]
+    assert "lamindb/.agents/docs/README.md" in seen["staged"]
     assert "lamindb/.agents/docs/guide.md" in seen["staged"]
     assert "lamindb/.agents/docs/tutorial.md" in seen["staged"]
     assert "lamindb/.agents/docs/faq/search.md" in seen["staged"]
@@ -152,6 +162,7 @@ def test_staged_docs_land_in_the_wheel_flit_publishes(tmp_path: Path, monkeypatc
             packed["names"] = set(zf.namelist())
 
     _call_with_lamindb_agent_docs(_build)
+    assert "lamindb/.agents/docs/README.md" in packed["names"]
     assert "lamindb/.agents/docs/guide.md" in packed["names"]
     assert "lamindb/.agents/docs/tutorial.md" in packed["names"]
     assert "lamindb/.agents/docs/faq/search.md" in packed["names"]

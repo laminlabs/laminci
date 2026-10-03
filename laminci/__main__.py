@@ -227,6 +227,7 @@ def _build_wheel_with_pyproject(pyproject_file: Path, dist_dir: Path) -> Path:
 _LAMINDB_SKILL = "lamindb/.agents/skills/lamindb/SKILL.md"
 _AGENT_DOCS_TREE = "lamindb/.agents/docs"
 _AGENT_DOCS_IN_PACKAGE = (
+    "lamindb/.agents/docs/README.md",
     "lamindb/.agents/docs/guide.md",
     "lamindb/.agents/docs/tutorial.md",
 )
@@ -354,7 +355,7 @@ def _assert_agent_docs_staged() -> None:
 def _call_with_lamindb_agent_docs(callback) -> None:
     """Copy the guide into the package and stage it for the core flit build.
 
-    ``flit publish`` selects sdist files with git, then builds the wheel from
+    `flit publish` selects sdist files with git, then builds the wheel from
     that sdist. An untracked copy is omitted, and aborts the build when it is
     not gitignored. The copy is unstaged and deleted afterward, including when
     the build fails, so the release commit never contains it.
