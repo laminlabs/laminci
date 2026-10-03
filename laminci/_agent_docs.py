@@ -13,9 +13,11 @@ def agent_docs_dir(root: Path | None = None) -> Path:
 def sync_lamindb_agent_docs(root: Path | None = None) -> Path:
     """Copy ``docs/**/*.md`` into ``lamindb/.agents/docs`` so flit packs them.
 
-    Flit's wheel walk includes gitignored files. The copy is deleted after the
-    build, so it is never committed. ``nox -s prepare`` deletes the executable
-    pages first; refuse to package a guide that is already gone.
+    The copy is removed after the build and is never committed. ``flit publish``
+    packs only git-tracked files, and builds the wheel from that sdist, so the
+    release command stages this directory for the core build and unstages it
+    afterward. ``nox -s prepare`` deletes the executable pages first; refuse to
+    package a guide that is already gone.
     """
     root = root or Path.cwd()
     source = root / "docs"

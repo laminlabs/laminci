@@ -15,6 +15,7 @@ from subprocess import PIPE, run
 import tomllib
 from packaging.version import Version, parse
 
+from ._agent_docs import remove_lamindb_agent_docs, sync_lamindb_agent_docs
 from ._env import get_package_name
 
 parser = argparse.ArgumentParser("laminci")
@@ -224,11 +225,26 @@ def _build_wheel_with_pyproject(pyproject_file: Path, dist_dir: Path) -> Path:
 
 
 _LAMINDB_SKILL = "lamindb/.agents/skills/lamindb/SKILL.md"
+_AGENT_DOCS_TREE = "lamindb/.agents/docs"
+_AGENT_DOCS_IN_PACKAGE = (
+    "lamindb/.agents/docs/guide.md",
+    "lamindb/.agents/docs/tutorial.md",
+)
 
 
 def _wheel_has_lamindb_package(wheel_path: Path) -> bool:
     with zipfile.ZipFile(wheel_path, "r") as zf:
         return any(name.startswith("lamindb/") for name in zf.namelist())
+
+
+def _assert_core_wheel_has_agent_docs(wheel_path: Path) -> None:
+    with zipfile.ZipFile(wheel_path, "r") as zf:
+        names = set(zf.namelist())
+    missing = [name for name in _AGENT_DOCS_IN_PACKAGE if name not in names]
+    if missing:
+        raise SystemExit(
+            f"{wheel_path.name} is missing the packaged guide: {', '.join(missing)}"
+        )
 
 
 def _ensure_lamindb_agents_skill_packaged():
@@ -276,6 +292,7 @@ def run_lamindb_dual_smoke_checks(version: str):
             raise SystemExit(f"Unexpected lamindb wheel name: {full_wheel.name}")
         if not _wheel_has_lamindb_package(core_wheel):
             raise SystemExit(f"{core_wheel.name} does not contain lamindb/ package")
+        _assert_core_wheel_has_agent_docs(core_wheel)
         if _wheel_has_lamindb_package(full_wheel):
             raise SystemExit(
                 f"{full_wheel.name} unexpectedly contains lamindb/ package"
@@ -319,13 +336,56 @@ def run_lamindb_dual_smoke_checks(version: str):
         print("INFO: Uninstall check passed (lamindb-core still imports).")
 
 
-def publish_lamindb_dual():
+def _assert_agent_docs_staged() -> None:
+    tracked = set(
+        subprocess.check_output(
+            ["git", "ls-files", "--", _AGENT_DOCS_TREE],
+            text=True,
+        ).splitlines()
+    )
+    missing = [name for name in _AGENT_DOCS_IN_PACKAGE if name not in tracked]
+    if missing:
+        raise SystemExit(
+            "Refusing to publish; flit would omit the guide from the wheel: "
+            + ", ".join(missing)
+        )
+
+
+def _call_with_lamindb_agent_docs(callback) -> None:
+    """Copy the guide into the package and stage it for the core flit build.
+
+    ``flit publish`` selects sdist files with git, then builds the wheel from
+    that sdist. An untracked copy is omitted, and aborts the build when it is
+    not gitignored. The copy is unstaged and deleted afterward, including when
+    the build fails, so the release commit never contains it.
+    """
+    sync_lamindb_agent_docs()
+    staged = False
+    try:
+        _run_checked(["git", "add", "-f", "--", _AGENT_DOCS_TREE])
+        staged = True
+        _assert_agent_docs_staged()
+        callback()
+    finally:
+        try:
+            if staged:
+                _run_checked(["git", "reset", "-q", "HEAD", "--", _AGENT_DOCS_TREE])
+        finally:
+            remove_lamindb_agent_docs()
+
+
+def publish_lamindb_dual(version: str, *, smoke_checks: bool = False):
     core_pyproject = Path("pyproject.toml")
     full_pyproject = Path("pyproject.full.toml")
     if not full_pyproject.exists():
         raise SystemExit("Missing pyproject.full.toml for lamindb dual release flow.")
 
-    _run_checked(["flit", "-f", str(core_pyproject), "publish"])
+    def _publish_core():
+        if smoke_checks:
+            run_lamindb_dual_smoke_checks(version)
+        _run_checked(["flit", "-f", str(core_pyproject), "publish"])
+
+    _call_with_lamindb_agent_docs(_publish_core)
     _run_checked(["flit", "-f", str(full_pyproject), "publish"])
 
 
@@ -453,9 +513,9 @@ def main():
                 )
                 _assert_lamindb_dependency_pin(version)
                 _ensure_lamindb_agents_skill_packaged()
-                if args.lamindb_dual_smoke_checks:
-                    run_lamindb_dual_smoke_checks(version)
-                publish_lamindb_dual()
+                publish_lamindb_dual(
+                    version, smoke_checks=args.lamindb_dual_smoke_checks
+                )
             else:
                 command = "flit publish"
                 print(f"\nrun: {command}")
