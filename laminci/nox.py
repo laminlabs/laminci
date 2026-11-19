@@ -9,6 +9,7 @@ import nox
 from nox import Session
 
 from . import _nox_logger  # noqa the import statement silences the logger
+from ._docs_artifacts import add_source_badges
 from ._env import get_package_name
 
 SYSTEM = " --system " if os.getenv("CI") else ""
@@ -89,6 +90,9 @@ def build_docs(session: Session, strict: bool = False, strip_prefix: bool = Fals
         args.append("--strict")
     if strip_prefix:
         args.append("--strip-prefix")
+    # Include generated pages that are not committed yet. Aggregate
+    # checkouts badge through convert_executable_md_files instead.
+    add_source_badges(tracked_only=False)
     session.run(*args)
 
 
